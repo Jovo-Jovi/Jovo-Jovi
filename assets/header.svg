@@ -1,0 +1,13 @@
+<svg width="854" height="200" viewBox="0 0 854 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jiovanny - Builder of AI-powered tools and autonomous systems">
+  <defs>
+    <linearGradient id="wave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#09090B"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="854" height="200" fill="#09090B"/>
+  <path d="M0 0L 0 120Q 213.5 160 427 130T 854 155L 854 0 Z" fill="url(#wave)" opacity="0.55"/>
+  <path d="M0 0L 0 135Q 213.5 180 427 150T 854 160L 854 0 Z" fill="url(#wave)" opacity="0.35"/>
+  <text x="50%" y="42%" text-anchor="middle" dominant-baseline="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="72" font-weight="700" fill="#F8FAFC">Jiovanny</text>
+  <text x="50%" y="66%" text-anchor="middle" dominant-baseline="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="16" font-weight="500" fill="#FBBF24">Builder of AI-powered tools &amp; autonomous systems</text>
+</svg>

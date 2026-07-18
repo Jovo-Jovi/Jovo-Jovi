@@ -8,7 +8,7 @@
 
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:09090B,100:F59E0B&height=200&section=header&text=Jiovanny&fontColor=F8FAFC&fontSize=72&fontAlignY=36&desc=Builder%20of%20AI-powered%20tools%20%26%20autonomous%20systems&descSize=16&descAlignY=58&descColor=FBBF24" width="100%" alt="header"/>
+<img src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/header.svg" width="100%" alt="header"/>
 
 <a href="https://git.io/typing-svg">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3500&pause=1000&color=F59E0B&center=true&vCenter=true&width=720&lines=Full-Stack+Engineer+%7C+AI+%26+Agentic+Systems;Next.js+15+%C2%B7+Supabase+%C2%B7+TypeScript;Shipping+polished+MVPs%2C+fast" alt="Typing SVG" />
@@ -56,8 +56,7 @@
 #### 🛒 BETK — Marketplace Platform
 Production-grade marketplace built on a modular monolith: **Next.js 15 · Supabase · shadcn/ui · TypeScript · Zod**. Auth, database, storage, and payments end to end.
 
-<!-- CUSTOMIZE: make the repo public, then this link lights up -->
-[**→ View Repository**](https://github.com/Jovo-Jovi/betk) &nbsp;·&nbsp; ![status](https://img.shields.io/badge/status-in%20progress-F59E0B?style=flat-square&labelColor=09090B)
+![status](https://img.shields.io/badge/status-in%20progress-F59E0B?style=flat-square&labelColor=09090B) &nbsp;·&nbsp; ![repo](https://img.shields.io/badge/repo-private%20·%20coming%20soon-71717A?style=flat-square&labelColor=09090B)
 
 </td>
 </tr>
@@ -71,20 +70,11 @@ Production-grade marketplace built on a modular monolith: **Next.js 15 · Supaba
 
 <div align="center">
 
-<img height="165" src="https://github-readme-stats.vercel.app/api?username=Jovo-Jovi&show_icons=true&count_private=true&hide_border=true&bg_color=09090B&title_color=F59E0B&icon_color=FBBF24&text_color=F8FAFC" alt="stats"/>
-<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Jovo-Jovi&layout=compact&hide_border=true&langs_count=8&bg_color=09090B&title_color=F59E0B&text_color=F8FAFC" alt="top langs"/>
-
-<br/>
-
 <img src="https://streak-stats.demolab.com?user=Jovo-Jovi&hide_border=true&background=09090B&stroke=F59E0B&ring=F59E0B&fire=FBBF24&currStreakLabel=F59E0B&sideLabels=F8FAFC&dates=94A3B8&currStreakNum=F8FAFC&sideNums=F8FAFC" alt="streak"/>
 
 <br/>
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=Jovo-Jovi&bg_color=09090B&color=F8FAFC&line=F59E0B&point=FBBF24&area=true&hide_border=true" alt="activity graph" width="100%"/>
-
-<br/>
-
-<img src="https://github-profile-trophy.vercel.app/?username=Jovo-Jovi&theme=onedark&no-frame=true&column=7&margin-w=8&margin-h=8" alt="trophies"/>
 
 </div>
 
