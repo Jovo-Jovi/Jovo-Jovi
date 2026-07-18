@@ -20,17 +20,16 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: generate arcade SVGs
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
-          # ── Want a SECOND game (Breakout) too? Uncomment the next line.
-          # After the first run, open the `output` branch to see the exact
-          # SVG filename it produced, then embed that file in your README.
-          # games: 'pacman,breakout'
+          # Comma-separated list of games to generate. Each produces a light +
+          # dark SVG on the `output` branch (e.g. galaga-contribution-graph.svg).
+          games: 'pacman,galaga,breakout,puzzle-bobble,bomberman'
 
       - name: push SVGs to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
