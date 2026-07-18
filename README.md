@@ -80,19 +80,71 @@ Production-grade marketplace built on a modular monolith: **Next.js 15 · Supaba
 
 ---
 
-### 👾 Pac-Man ate my contributions
+### 👾 Arcade — my contribution grid, five ways
 
 <div align="center">
+<sub>Click a tab to watch that game play across my real GitHub contributions · auto-generated daily by GitHub Actions</sub>
+</div>
 
+<details open>
+<summary>👻 &nbsp;<b>Pac-Man</b> &nbsp;·&nbsp; eats my contributions while four ghosts give chase</summary>
+<br/>
+<div align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/pacman-contribution-graph-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/pacman-contribution-graph.svg">
-  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/pacman-contribution-graph-dark.svg">
+  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/pacman-contribution-graph-dark.svg" width="100%">
 </picture>
-
-<sub>Auto-generated daily by GitHub Actions · four ghosts with real chase AI</sub>
-
 </div>
+</details>
+
+<details>
+<summary>🚀 &nbsp;<b>Galaga</b> &nbsp;·&nbsp; a fighter ship blasts the grid (Space-Invaders style)</summary>
+<br/>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/galaga-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/galaga-contribution-graph.svg">
+  <img alt="galaga contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/galaga-contribution-graph-dark.svg" width="100%">
+</picture>
+</div>
+</details>
+
+<details>
+<summary>🧱 &nbsp;<b>Breakout</b> &nbsp;·&nbsp; a ball bounces around smashing my contribution bricks</summary>
+<br/>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/breakout-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/breakout-contribution-graph.svg">
+  <img alt="breakout contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/breakout-contribution-graph-dark.svg" width="100%">
+</picture>
+</div>
+</details>
+
+<details>
+<summary>🫧 &nbsp;<b>Puzzle Bobble</b> &nbsp;·&nbsp; a cannon fires bubbles to pop matching clusters</summary>
+<br/>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/puzzle-bobble-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/puzzle-bobble-contribution-graph.svg">
+  <img alt="puzzle bobble contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/puzzle-bobble-contribution-graph-dark.svg" width="100%">
+</picture>
+</div>
+</details>
+
+<details>
+<summary>💣 &nbsp;<b>Bomberman</b> &nbsp;·&nbsp; two bombers blast contribution cells across the graph</summary>
+<br/>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/bomberman-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/bomberman-contribution-graph.svg">
+  <img alt="bomberman contribution graph" src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/output/bomberman-contribution-graph-dark.svg" width="100%">
+</picture>
+</div>
+</details>
 
 ---
 
