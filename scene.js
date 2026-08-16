@@ -170,8 +170,8 @@ grid.position.y=-12.95; grid.material.transparent=true; grid.material.opacity=0;
 
   const cap0=document.querySelector('.cap[data-act="0"]');
   if(cap0){ cap0.style.opacity='1'; cap0.style.transform='translateY(0)'; }
-  camera.position.set(16,2,26);
-  camera.lookAt(0,1.2,0);
+  camera.position.set(10,1.2,20);
+  camera.lookAt(-1,1.2,0);
 
   /* studio reflections on first frame — do not wait for the HDRI download */
   const pmrem=new THREE.PMREMGenerator(renderer);
@@ -184,23 +184,23 @@ function gearGeom(z,depth,taper){
   const rP=MOD*z/2, rT=rP+MOD, rR=rP-1.25*MOD, rB=rP-0.16*MOD, pa=Math.PI*2/z;
   const sh=new THREE.Shape(); const P=(r,a)=>[r*Math.cos(a),r*Math.sin(a)];
   for(let k=0;k<z;k++){
-    const a=k*pa, p0=P(rR,a+pa*.05), c1=P(rB,a+pa*.14), p1=P(rT,a+pa*.29),
-          p2=P(rT,a+pa*.52), c2=P(rB,a+pa*.67), p3=P(rR,a+pa*.76);
+    const a=k*pa, p0=P(rR,a+pa*.06), c1=P(rB,a+pa*.16), p1=P(rT,a+pa*.31),
+          c2=P(rB,a+pa*.65), p3=P(rR,a+pa*.75);
     if(k===0) sh.moveTo(p0[0],p0[1]); else sh.lineTo(p0[0],p0[1]);
     sh.quadraticCurveTo(c1[0],c1[1],p1[0],p1[1]);
-    sh.absarc(0,0,rT,a+pa*.29,a+pa*.52,false);
+    sh.absarc(0,0,rT,a+pa*.31,a+pa*.50,false);
     sh.quadraticCurveTo(c2[0],c2[1],p3[0],p3[1]);
-    sh.absarc(0,0,rR,a+pa*.76,a+pa*1.05,false);
+    sh.absarc(0,0,rR,a+pa*.75,a+pa*1.06,false);
   }
   sh.closePath();
-  const bore=new THREE.Path(); bore.absarc(0,0,rP*0.18,0,Math.PI*2,true); sh.holes.push(bore);
+  const bore=new THREE.Path(); bore.absarc(0,0,rP*0.20,0,Math.PI*2,true); sh.holes.push(bore);
   if(!taper){
-    const nb=z>=26?8:6, rr=rP*0.58;
+    const nb=z>=26?8:6, rr=rP*0.60;
     for(let i=0;i<nb;i++){const a=i*Math.PI*2/nb; const h=new THREE.Path();
-      h.absarc(rr*Math.cos(a),rr*Math.sin(a),rP*0.082,0,Math.PI*2,true); sh.holes.push(h);}
+      h.absarc(rr*Math.cos(a),rr*Math.sin(a),rP*0.088,0,Math.PI*2,true); sh.holes.push(h);}
   }
-  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.16,
-    bevelSize:MOD*.14,bevelSegments:2,curveSegments:5,steps:1});
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.14,
+    bevelSize:MOD*.14,bevelSegments:2,curveSegments:6,steps:1});
   g.translate(0,0,-depth/2);
   if(taper){
     const pos=g.attributes.position;
@@ -245,25 +245,22 @@ const GBOX=(function(){
   const castMap=scratchTex(256,9,true);
 
   const G={
-    steel: new THREE.MeshPhysicalMaterial({color:0xD0D6DE,metalness:1,roughness:0.26,roughnessMap:steelMap,
-      envMapIntensity:1.9,clearcoat:0.28,clearcoatRoughness:0.2,bumpMap:steelMap,bumpScale:0.01}),
-    bronze: new THREE.MeshPhysicalMaterial({color:0xC99738,metalness:1,roughness:0.32,roughnessMap:bronzeMap,
-      envMapIntensity:1.95,clearcoat:0.18,clearcoatRoughness:0.28,bumpMap:bronzeMap,bumpScale:0.014}),
+    steel: new THREE.MeshPhysicalMaterial({color:0xD8DEE6,metalness:1,roughness:0.22,roughnessMap:steelMap,
+      envMapIntensity:2.05,clearcoat:0.22,clearcoatRoughness:0.18,bumpMap:steelMap,bumpScale:0.008}),
+    bronze: new THREE.MeshPhysicalMaterial({color:0xD4A44A,metalness:1,roughness:0.28,roughnessMap:bronzeMap,
+      envMapIntensity:2.1,clearcoat:0.16,clearcoatRoughness:0.24,bumpMap:bronzeMap,bumpScale:0.01}),
     dark: new THREE.MeshPhysicalMaterial({color:0x4E575F,metalness:1,roughness:0.5,roughnessMap:steelMap,
       envMapIntensity:1.25,clearcoat:0.1,clearcoatRoughness:0.42,bumpMap:steelMap,bumpScale:0.01}),
     cast: new THREE.MeshPhysicalMaterial({color:0x1C2229,metalness:0.72,roughness:0.74,roughnessMap:castMap,
       envMapIntensity:0.85,clearcoat:0.05,clearcoatRoughness:0.65,bumpMap:castMap,bumpScale:0.04}),
     brush: new THREE.MeshPhysicalMaterial({color:0xB4BDC6,metalness:1,roughness:0.3,roughnessMap:brushed,
       envMapIntensity:1.75,clearcoat:0.32,clearcoatRoughness:0.16,bumpMap:brushed,bumpScale:0.008}),
-    /* one front pane only — five transmissive walls were slow and read as a glass case, not the card */
-    glass: new THREE.MeshPhysicalMaterial({color:0xF3F8FF,metalness:0,roughness:0.03,transmission:0.9,
-      thickness:0.32,ior:1.5,envMapIntensity:2.5,clearcoat:1,clearcoatRoughness:0.025}),
-    oil: new THREE.MeshPhysicalMaterial({color:0xC48A22,metalness:0,roughness:0.1,transmission:0.58,
-      thickness:5.5,ior:1.47,attenuationColor:0xA65C0A,attenuationDistance:2.6,
-      envMapIntensity:1.85,clearcoat:0.45,clearcoatRoughness:0.14}),
-    oilSkin: new THREE.MeshPhysicalMaterial({color:0xE0B24A,metalness:0.12,roughness:0.06,
-      transparent:true,opacity:0.38,clearcoat:1,clearcoatRoughness:0.05,
-      envMapIntensity:2.3,depthWrite:false,side:THREE.DoubleSide})
+    /* thin inspection glass — transmission was warping the teeth into mush */
+    glass: new THREE.MeshPhysicalMaterial({color:0xEAF3FA,metalness:0,roughness:0.035,
+      transparent:true,opacity:0.13,clearcoat:1,clearcoatRoughness:0.02,
+      envMapIntensity:2.3,depthWrite:false,side:THREE.DoubleSide}),
+    oil: new THREE.MeshPhysicalMaterial({color:0xC08A3E,metalness:0,roughness:0.08,
+      transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false,envMapIntensity:1.45})
   };
 
   function hexBolt(r,h,mat){
@@ -297,16 +294,11 @@ const GBOX=(function(){
 
   const glass=new THREE.Mesh(rboxGeom(W-FR*1.45,H-FR*1.45,0.26),G.glass);
   glass.position.set(0,0,D/2-0.08);
-  glass.castShadow=false; glass.receiveShadow=false; g.add(glass);
+  glass.castShadow=false; glass.receiveShadow=false; glass.renderOrder=2; g.add(glass);
 
   const sump=box(W-WALL,1.55,D-WALL,G.cast); sump.position.y=-H/2+0.78; g.add(sump);
-  const oilH=6.7;
-  const oil=new THREE.Mesh(rboxGeom(W-WALL-0.55,oilH,D-WALL-0.55),G.oil);
-  oil.position.y=-H/2+0.95+oilH/2; oil.castShadow=false; g.add(oil);
-  const oilSurf=new THREE.Mesh(new THREE.PlaneGeometry(W-WALL-0.75,D-WALL-0.75),G.oilSkin);
-  oilSurf.rotation.x=-Math.PI/2;
-  oilSurf.position.y=-H/2+0.95+oilH-0.04;
-  oilSurf.renderOrder=1; g.add(oilSurf);
+  const oil=new THREE.Mesh(rboxGeom(W-WALL-0.55,3.6,D-WALL-0.55),G.oil);
+  oil.position.y=-H/2+2.55; oil.castShadow=false; oil.renderOrder=1; g.add(oil);
   for(let i=0;i<13;i++){
     const f=box(0.95,1.55,D+0.7,G.cast); f.position.set(-W/2+2.6+i*2.1,-H/2-0.7,0); g.add(f);
   }
@@ -339,17 +331,14 @@ const GBOX=(function(){
   }
   contact(W+16,D+14,0,0.06,0,ped);
 
-  const cabin=new THREE.PointLight(0xFFD7A0,2.1,22,2); cabin.position.set(0,-1.2,2.2); g.add(cabin);
-  const area=new THREE.RectAreaLight(0xFFF4E0,8.5,18,6);
-  area.position.set(-2,9,14); g.add(area); area.lookAt(0,1,0);
-  const edge=new THREE.RectAreaLight(0xFFE8C4,4.2,14,2.2);
-  edge.position.set(-10,11,6); g.add(edge); edge.lookAt(0,4,0);
+  const cabin=new THREE.PointLight(0xFFE6B8,2.6,24,2); cabin.position.set(1,2.5,4.2); g.add(cabin);
+  const area=new THREE.RectAreaLight(0xFFF4E0,7.2,16,5);
+  area.position.set(-1,8,15); g.add(area); area.lookAt(0,1,0);
 
   const SPZ=1.55;
-  const SP=[{z:12,mat:'steel', d:1.55,parent:null,ang:0,  x:-11.0,y:4.5},
-            {z:22,mat:'bronze',d:1.75,parent:0,   ang:-50},
-            {z:12,mat:'dark',  d:1.45,parent:1,   ang:55},
-            {z:14,mat:'steel', d:1.5, parent:2,   ang:-18}];
+  const SP=[{z:12,mat:'steel', d:1.5,parent:null,ang:0,  x:-11.0,y:4.5},
+            {z:22,mat:'bronze',d:1.6,parent:0,   ang:-50},
+            {z:12,mat:'dark',  d:1.4,parent:1,   ang:55}];
   SP.forEach(s=>{
     s.rP=MOD*s.z/2; s.pa=360/s.z;
     if(s.parent!==null){
@@ -360,26 +349,14 @@ const GBOX=(function(){
     } else { s.phase=0; s.ratio=1; }
     const m=new THREE.Mesh(gearGeom(s.z,s.d),G[s.mat]);
     m.position.set(s.x,s.y,SPZ); m.castShadow=m.receiveShadow=true; g.add(m);
-    const hub=cyl(s.rP*0.34,s.rP*0.34,s.d+0.28,16,G.dark);
+    const hub=cyl(s.rP*0.32,s.rP*0.32,s.d+0.22,16,G.dark);
     hub.rotation.x=Math.PI/2; m.add(hub);
-    const sf=cyl(s.rP*0.18,s.rP*0.18,D-WALL-0.6,14,G.dark);
-    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.05); g.add(sf);
+    const sf=cyl(s.rP*0.18,s.rP*0.18,D-WALL-0.8,14,G.dark);
+    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.15); g.add(sf);
     s.mesh=m;
   });
 
-  /* second plane — the card is packed with overlapping cogs, not a single layer */
-  const BG=[
-    {z:18,mat:'dark',  d:1.15,x:-7.2,y:0.8, ratio: 0.42},
-    {z:11,mat:'bronze',d:1.05,x: 2.4,y:4.6, ratio:-0.78},
-    {z:15,mat:'steel', d:1.2, x:-1.6,y:-3.8,ratio: 0.55}
-  ];
-  BG.forEach(s=>{
-    const m=new THREE.Mesh(gearGeom(s.z,s.d),G[s.mat]);
-    m.position.set(s.x,s.y,-0.85); m.castShadow=m.receiveShadow=true; g.add(m);
-    s.mesh=m;
-  });
-
-  const BZ=16, BR=MOD*BZ/2, BD=1.45, BT=(BR-BD)/BR, APEXOFF=BR-BD/2;
+  const BZ=16, BR=MOD*BZ/2, BD=1.4, BT=(BR-BD)/BR, APEXOFF=BR-BD/2;
   const AP={x:8.5,y:-1.5,z:0.5};
   const bevA=new THREE.Mesh(gearGeom(BZ,BD,BT),G.steel);
   bevA.position.set(AP.x,AP.y,AP.z-APEXOFF);
@@ -401,7 +378,6 @@ const GBOX=(function(){
 
   function update(spin){
     SP.forEach(s=>{ s.mesh.rotation.z=s.phase*Math.PI/180+spin*s.ratio; });
-    BG.forEach(s=>{ s.mesh.rotation.z=spin*s.ratio; });
     const bs=spin*0.62;
     bevA.rotation.z=bs;
     bevB.rotation.z=-bs+BPHASE;
@@ -743,7 +719,7 @@ BACK=(function(){
 
 /* ================= ACTS + CAMERA ================= */
 const ACTS=[
-  {n:'IDLE · GLASS GEARBOX',a:0, b:.08,cam:[16,2,26],  look:[0,1.2,0]},
+  {n:'IDLE · GLASS GEARBOX',a:0, b:.08,cam:[10,1.2,20], look:[-1,1.2,0]},
   {n:'ACT 1 · MECHANICS', a:.08, b:.22,cam:[4,7,40],   look:[0,2,0]},
   {n:'ACT 2 · ROBOTICS',  a:.20, b:.36,cam:[54,0,32],  look:[32,-6,6]},
   {n:'ACT 3 · HUMANOID',  a:.36, b:.50,cam:[-48,0,28], look:[-29,-5,8]},
