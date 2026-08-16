@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -34,6 +35,7 @@ renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.06;
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+RectAreaLightUniformsLib.init();
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x07080A);
@@ -177,25 +179,25 @@ function gearGeom(z,depth,taper){
   const rP=MOD*z/2, rT=rP+MOD, rR=rP-1.25*MOD, rB=rP-0.16*MOD, pa=Math.PI*2/z;
   const sh=new THREE.Shape(); const P=(r,a)=>[r*Math.cos(a),r*Math.sin(a)];
   for(let k=0;k<z;k++){
-    const a=k*pa, p0=P(rR,a+pa*.06), c1=P(rB,a+pa*.16), p1=P(rT,a+pa*.31),
-          c2=P(rB,a+pa*.65), p3=P(rR,a+pa*.75);
+    const a=k*pa, p0=P(rR,a+pa*.05), c1=P(rB,a+pa*.14), p1=P(rT,a+pa*.29),
+          p2=P(rT,a+pa*.52), c2=P(rB,a+pa*.67), p3=P(rR,a+pa*.76);
     if(k===0) sh.moveTo(p0[0],p0[1]); else sh.lineTo(p0[0],p0[1]);
     sh.quadraticCurveTo(c1[0],c1[1],p1[0],p1[1]);
-    sh.absarc(0,0,rT,a+pa*.31,a+pa*.50,false);
+    sh.absarc(0,0,rT,a+pa*.29,a+pa*.52,false);
     sh.quadraticCurveTo(c2[0],c2[1],p3[0],p3[1]);
-    sh.absarc(0,0,rR,a+pa*.75,a+pa*1.06,false);
+    sh.absarc(0,0,rR,a+pa*.76,a+pa*1.05,false);
   }
   sh.closePath();
-  const bore=new THREE.Path(); bore.absarc(0,0,rP*0.20,0,Math.PI*2,true); sh.holes.push(bore);
+  const bore=new THREE.Path(); bore.absarc(0,0,rP*0.18,0,Math.PI*2,true); sh.holes.push(bore);
   if(!taper){
-    const nb=z>=26?8:6, rr=rP*0.60;
+    const nb=z>=26?8:6, rr=rP*0.58;
     for(let i=0;i<nb;i++){const a=i*Math.PI*2/nb; const h=new THREE.Path();
-      h.absarc(rr*Math.cos(a),rr*Math.sin(a),rP*0.088,0,Math.PI*2,true); sh.holes.push(h);}
+      h.absarc(rr*Math.cos(a),rr*Math.sin(a),rP*0.082,0,Math.PI*2,true); sh.holes.push(h);}
   }
-  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.14,
-    bevelSize:MOD*.14,bevelSegments:2,curveSegments:5,steps:1});
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.18,
+    bevelSize:MOD*.16,bevelSegments:4,curveSegments:8,steps:1});
   g.translate(0,0,-depth/2);
-  if(taper){ /* conical blank → bevel gear */
+  if(taper){
     const pos=g.attributes.position;
     for(let i=0;i<pos.count;i++){
       const t=(pos.getZ(i)+depth/2)/depth, s=lerp(1,taper,clamp(t,0,1));
@@ -208,70 +210,134 @@ function gearGeom(z,depth,taper){
 /* ================= ACT 1 — GEARBOX ================= */
 const GBOX=(function(){
   const g=new THREE.Group(); g.position.set(0,2,0); scene.add(g);
+  const maxAniso=renderer.capabilities.getMaxAnisotropy();
 
-  /* ---- transparent inspection housing: brushed frame, glass panes, oil bath ----
-     The mechanism is the point, so the casting became a frame and the panels became glass. */
-  const W=30, H=20, D=11, FR=0.75;
-  const bar=(w,h,d,x,y,z)=>{const m=box(w,h,d,M.brush);m.position.set(x,y,z);g.add(m);};
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sy,sz])=>bar(W,FR,FR,0,sy*H/2,sz*D/2));
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>bar(FR,H,FR,sx*W/2,0,sz*D/2));
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sy])=>bar(FR,FR,D,sx*W/2,sy*H/2,0));
-  /* corner blocks where the rails meet */
+  function scratchTex(size,rep,pits){
+    const c=document.createElement('canvas'); c.width=c.height=size;
+    const x=c.getContext('2d');
+    x.fillStyle='#7a7a7a'; x.fillRect(0,0,size,size);
+    for(let i=0;i<size*16;i++){
+      const y=Math.random()*size, v=70+Math.random()*110;
+      x.strokeStyle='rgba('+v+','+v+','+v+','+(0.1+Math.random()*0.28)+')';
+      x.lineWidth=Math.random()*1.6+0.2;
+      x.beginPath(); x.moveTo(Math.random()*size,y);
+      x.lineTo(Math.random()*size,y+(Math.random()-0.5)*1.8); x.stroke();
+    }
+    if(pits){
+      for(let i=0;i<120;i++){
+        const v=40+Math.random()*50;
+        x.fillStyle='rgba('+v+','+v+','+v+','+(0.15+Math.random()*0.3)+')';
+        x.beginPath(); x.arc(Math.random()*size,Math.random()*size,Math.random()*2.4+0.4,0,Math.PI*2); x.fill();
+      }
+    }
+    const t=new THREE.CanvasTexture(c);
+    t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rep,rep);
+    t.anisotropy=maxAniso; t.colorSpace=THREE.NoColorSpace;
+    return t;
+  }
+  const steelMap=scratchTex(512,4,false);
+  const bronzeMap=scratchTex(512,3.2,true);
+  const castMap=scratchTex(256,8,true);
+
+  const G={
+    steel: new THREE.MeshPhysicalMaterial({color:0xC9D0D8,metalness:1,roughness:0.28,roughnessMap:steelMap,
+      envMapIntensity:1.85,clearcoat:0.35,clearcoatRoughness:0.22,bumpMap:steelMap,bumpScale:0.012}),
+    bronze: new THREE.MeshPhysicalMaterial({color:0xC9963A,metalness:1,roughness:0.34,roughnessMap:bronzeMap,
+      envMapIntensity:1.9,clearcoat:0.22,clearcoatRoughness:0.3,bumpMap:bronzeMap,bumpScale:0.016}),
+    dark: new THREE.MeshPhysicalMaterial({color:0x5C6570,metalness:1,roughness:0.48,roughnessMap:steelMap,
+      envMapIntensity:1.35,clearcoat:0.12,clearcoatRoughness:0.4,bumpMap:steelMap,bumpScale:0.01}),
+    cast: new THREE.MeshPhysicalMaterial({color:0x2A313A,metalness:0.62,roughness:0.78,roughnessMap:castMap,
+      envMapIntensity:0.95,clearcoat:0.06,clearcoatRoughness:0.7,bumpMap:castMap,bumpScale:0.035}),
+    brush: new THREE.MeshPhysicalMaterial({color:0xA7B1BC,metalness:1,roughness:0.32,roughnessMap:brushed,
+      envMapIntensity:1.7,clearcoat:0.28,clearcoatRoughness:0.18,bumpMap:brushed,bumpScale:0.008}),
+    glass: new THREE.MeshPhysicalMaterial({color:0xEEF6FF,metalness:0,roughness:0.025,transmission:0.94,
+      thickness:0.45,ior:1.5,envMapIntensity:2.4,clearcoat:1,clearcoatRoughness:0.03,
+      transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide}),
+    oil: new THREE.MeshPhysicalMaterial({color:0xC48A22,metalness:0,roughness:0.08,transmission:0.7,
+      thickness:4.2,ior:1.47,attenuationColor:0xB87414,attenuationDistance:3.2,
+      envMapIntensity:2.0,clearcoat:0.55,clearcoatRoughness:0.12,
+      transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide})
+  };
+
+  function hexBolt(r,h,mat){
+    const sh=new THREE.Shape();
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3-Math.PI/6, x=r*Math.cos(a), y=r*Math.sin(a);
+      if(i===0) sh.moveTo(x,y); else sh.lineTo(x,y);
+    }
+    sh.closePath();
+    const geom=new THREE.ExtrudeGeometry(sh,{depth:h,bevelEnabled:true,bevelThickness:r*0.1,bevelSize:r*0.08,bevelSegments:1});
+    geom.translate(0,0,-h/2); geom.computeVertexNormals();
+    const m=new THREE.Mesh(geom,mat); m.castShadow=true; m.receiveShadow=true; return m;
+  }
+
+  const W=30, H=20, D=11, FR=1.25;
+
+  /* heavy back casting — gives the card's solid-box read without trapping the key light */
+  const back=box(W-0.2,H-0.2,0.85,G.cast); back.position.z=-D/2+0.12; g.add(back);
+  const backRib=box(W-6,0.55,0.4,G.dark); backRib.position.set(0,0,-D/2+0.55); g.add(backRib);
+
+  const bar=(w,h,d,x,y,z,mat)=>{const m=box(w,h,d,mat||G.brush);m.position.set(x,y,z);g.add(m);};
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sy,sz])=>bar(W,FR,FR,0,sy*H/2,sz*D/2,G.brush));
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>bar(FR,H,FR,sx*W/2,0,sz*D/2,G.brush));
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sy])=>bar(FR,FR,D,sx*W/2,sy*H/2,0,G.brush));
   [-1,1].forEach(sx=>[-1,1].forEach(sy=>[-1,1].forEach(sz=>{
-    const c=box(1.15,1.15,1.15,M.dark); c.position.set(sx*W/2,sy*H/2,sz*D/2); g.add(c);
+    const c=box(1.55,1.55,1.55,G.cast); c.position.set(sx*W/2,sy*H/2,sz*D/2); g.add(c);
   })));
 
   const pane=(w,h,d,x,y,z)=>{
-    const m=new THREE.Mesh(rboxGeom(w,h,d),M.pane);
+    const m=new THREE.Mesh(rboxGeom(w,h,d),G.glass);
     m.position.set(x,y,z); m.castShadow=false; m.receiveShadow=false; m.renderOrder=2; g.add(m);
   };
-  pane(W-FR,H-FR,0.26, 0,0, D/2-0.22);
-  pane(W-FR,H-FR,0.26, 0,0,-D/2+0.22);
-  pane(0.26,H-FR,D-FR, -W/2+0.22,0,0);
-  pane(0.26,H-FR,D-FR,  W/2-0.22,0,0);
-  pane(W-FR,0.26,D-FR, 0, H/2-0.22,0);
+  pane(W-FR*1.15,H-FR*1.15,0.22, 0,0, D/2-0.18);
+  pane(W-FR*1.15,H-FR*1.15,0.22, 0,0,-D/2+0.55);
+  pane(0.22,H-FR*1.15,D-FR, -W/2+0.18,0,0);
+  pane(0.22,H-FR*1.15,D-FR,  W/2-0.18,0,0);
+  pane(W-FR*1.15,0.22,D-FR, 0, H/2-0.18,0);
 
-  /* opaque cast sump floor with an oil bath the lower gear dips into */
-  const sump=box(W-FR,1.0,D-FR,M.cast); sump.position.y=-H/2+0.5; g.add(sump);
-  const oil=new THREE.Mesh(rboxGeom(W-FR-0.5,1.9,D-FR-0.5),M.oil);
-  oil.position.y=-H/2+1.9; oil.castShadow=false; oil.renderOrder=1; g.add(oil);
+  const sump=box(W-FR,1.35,D-FR,G.cast); sump.position.y=-H/2+0.68; g.add(sump);
+  const oil=new THREE.Mesh(rboxGeom(W-FR-0.7,5.4,D-FR-0.7),G.oil);
+  oil.position.y=-H/2+3.55; oil.castShadow=false; oil.renderOrder=1; g.add(oil);
   for(let i=0;i<13;i++){
-    const f=box(0.85,1.3,D+0.5,M.cast); f.position.set(-W/2+2.6+i*2.1,-H/2-0.55,0); g.add(f);
+    const f=box(0.95,1.55,D+0.7,G.cast); f.position.set(-W/2+2.6+i*2.1,-H/2-0.7,0); g.add(f);
   }
 
-  /* fasteners on the front frame */
   for(let i=0;i<9;i++){
     const px=-W/2+2.6+i*((W-5.2)/8);
     [-1,1].forEach(sy=>{
-      const b=cyl(0.28,0.28,0.42,12,M.dark);
-      b.rotation.x=Math.PI/2; b.position.set(px,sy*H/2,D/2+0.12); g.add(b);
+      const b=hexBolt(0.32,0.38,G.dark);
+      b.rotation.x=Math.PI/2; b.position.set(px,sy*H/2,D/2+0.28); g.add(b);
     });
   }
-  /* data plate bolted to the lower rail */
-  const plate=box(4.6,1.5,0.14,M.brush); plate.position.set(W/2-5.0,-H/2-0.05,D/2+0.28); g.add(plate);
+  const plate=box(5.1,1.7,0.16,G.brush); plate.position.set(W/2-5.0,-H/2-0.02,D/2+0.36); g.add(plate);
   for(let i=0;i<3;i++){
-    const l=box(3.2-(i%2)*1.1,0.13,0.05,M.dark);
-    l.position.set(W/2-5.3+(i%2)*0.55,-H/2+0.38-i*0.4,D/2+0.37); g.add(l);
+    const l=box(3.4-(i%2)*1.15,0.12,0.05,G.dark);
+    l.position.set(W/2-5.25+(i%2)*0.5,-H/2+0.42-i*0.42,D/2+0.46); g.add(l);
   }
+  const fillCap=cyl(0.55,0.55,0.5,16,G.bronze); fillCap.position.set(-W/2+3.2,H/2+0.15,0); g.add(fillCap);
+  const drain=cyl(0.38,0.38,0.42,12,G.dark); drain.rotation.x=Math.PI/2;
+  drain.position.set(W/2-2.4,-H/2+0.2,D/2+0.15); g.add(drain);
 
-  /* floor is at y=-13 and the housing floor sits at y=-8.3, so the pedestal spans that gap */
   const ped=new THREE.Group(); ped.position.set(0,-15,0); g.add(ped);
-  const pBase=box(W-4,0.8,D+1.4,M.cast); pBase.position.y=0.4; ped.add(pBase);
-  const pCol=box(W-11,3.4,D-2.4,M.cast); pCol.position.y=2.4; ped.add(pCol);
-  const pTop=box(W-2,0.9,D+0.6,M.cast); pTop.position.y=4.35; ped.add(pTop);
+  const pBase=box(W-3.2,0.95,D+1.8,G.cast); pBase.position.y=0.48; ped.add(pBase);
+  const pCol=box(W-10,3.5,D-2.0,G.cast); pCol.position.y=2.45; ped.add(pCol);
+  const pTop=box(W-1.6,1.05,D+0.8,G.cast); pTop.position.y=4.4; ped.add(pTop);
   for(let i=0;i<6;i++){
-    const b=cyl(0.34,0.34,0.4,12,M.dark);
-    b.position.set(-W/2+3+i*((W-6)/5),4.85,D/2-1.2); ped.add(b);
-    const b2=cyl(0.34,0.34,0.4,12,M.dark);
-    b2.position.set(-W/2+3+i*((W-6)/5),4.85,-D/2+1.2); ped.add(b2);
+    const b=hexBolt(0.36,0.42,G.dark);
+    b.position.set(-W/2+3+i*((W-6)/5),4.95,D/2-1.0); ped.add(b);
+    const b2=hexBolt(0.36,0.42,G.dark);
+    b2.position.set(-W/2+3+i*((W-6)/5),4.95,-D/2+1.0); ped.add(b2);
   }
   contact(W+16,D+14,0,0.06,0,ped);
 
-  /* spur reduction train — left bay, all coplanar so the teeth actually mesh */
+  const fill=new THREE.PointLight(0xFFE2B0,1.35,32,2); fill.position.set(2,2,4.5); g.add(fill);
+  const area=new THREE.RectAreaLight(0xFFF4E0,7.5,16,5.5);
+  area.position.set(4,7,13); g.add(area); area.lookAt(0,0,0);
+
   const SPZ=1.5;
-  const SP=[{z:12,mat:'steel', d:1.5,parent:null,ang:0,  x:-11.0,y:4.5},
-            {z:22,mat:'bronze',d:1.6,parent:0,   ang:-50},
-            {z:12,mat:'dark',  d:1.4,parent:1,   ang:55}];
+  const SP=[{z:12,mat:'steel', d:1.55,parent:null,ang:0,  x:-11.0,y:4.5},
+            {z:22,mat:'bronze',d:1.7,parent:0,   ang:-50},
+            {z:12,mat:'dark',  d:1.45,parent:1,   ang:55}];
   SP.forEach(s=>{
     s.rP=MOD*s.z/2; s.pa=360/s.z;
     if(s.parent!==null){
@@ -280,42 +346,37 @@ const GBOX=(function(){
       const near=p.phase+Math.round((s.ang-p.phase)/p.pa)*p.pa;
       s.phase=near+180-s.pa/2; s.ratio=-p.ratio*p.z/s.z;
     } else { s.phase=0; s.ratio=1; }
-    const m=new THREE.Mesh(gearGeom(s.z,s.d),M[s.mat]);
+    const m=new THREE.Mesh(gearGeom(s.z,s.d),G[s.mat]);
     m.position.set(s.x,s.y,SPZ); m.castShadow=m.receiveShadow=true; g.add(m);
-    const sf=cyl(s.rP*0.2,s.rP*0.2,D-1.4,14,M.dark);
-    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.2); g.add(sf);
+    const hub=cyl(s.rP*0.34,s.rP*0.34,s.d+0.28,20,G.dark);
+    hub.rotation.x=Math.PI/2; m.add(hub);
+    const sf=cyl(s.rP*0.18,s.rP*0.18,D-1.2,16,G.dark);
+    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.15); g.add(sf);
     s.mesh=m;
   });
 
-  /* ---- bevel pair: 45 degree miter, horizontal input turning a vertical output ----
-     For the pitch cones to be tangent the two cone apexes must be the same point and
-     the taper must lose exactly one radius unit per axial unit, i.e. taper=(R-d)/R.  */
-  const BZ=16, BR=MOD*BZ/2, BD=1.4, BT=(BR-BD)/BR, APEXOFF=BR-BD/2;
-  const AP={x:8.5,y:-1.5,z:0.5};                       // shared cone apex
-  const bevA=new THREE.Mesh(gearGeom(BZ,BD,BT),M.steel);
-  bevA.position.set(AP.x,AP.y,AP.z-APEXOFF);           // axis along +Z, apex at AP
+  const BZ=16, BR=MOD*BZ/2, BD=1.45, BT=(BR-BD)/BR, APEXOFF=BR-BD/2;
+  const AP={x:8.5,y:-1.5,z:0.5};
+  const bevA=new THREE.Mesh(gearGeom(BZ,BD,BT),G.steel);
+  bevA.position.set(AP.x,AP.y,AP.z-APEXOFF);
   bevA.castShadow=bevA.receiveShadow=true; g.add(bevA);
-  const bevB=new THREE.Mesh(gearGeom(BZ,BD,BT),M.bronze);
-  bevB.position.set(AP.x,AP.y+APEXOFF,AP.z);           // axis along -Y, apex at AP
+  const bevB=new THREE.Mesh(gearGeom(BZ,BD,BT),G.bronze);
+  bevB.position.set(AP.x,AP.y+APEXOFF,AP.z);
   bevB.rotation.x=Math.PI/2;
   bevB.castShadow=bevB.receiveShadow=true; g.add(bevB);
-  const BPHASE=Math.PI/BZ;                             // half a tooth pitch, so teeth interleave
+  const BPHASE=Math.PI/BZ;
 
-  const inShaft=cyl(0.55,0.55,7,16,M.dark); inShaft.rotation.x=Math.PI/2;
+  const inShaft=cyl(0.58,0.58,7.2,18,G.dark); inShaft.rotation.x=Math.PI/2;
   inShaft.position.set(AP.x,AP.y,AP.z-APEXOFF-2.2); g.add(inShaft);
-  const outShaft=cyl(0.55,0.55,9,16,M.dark);
+  const outShaft=cyl(0.58,0.58,9.2,18,G.dark);
   outShaft.position.set(AP.x,AP.y+APEXOFF+3.6,AP.z); g.add(outShaft);
-  const bossZ=cyl(1.15,1.15,0.9,16,M.cast); bossZ.rotation.x=Math.PI/2;
-  bossZ.position.set(AP.x,AP.y,-D/2+0.25); g.add(bossZ);
-  const bossY=cyl(1.15,1.15,0.9,16,M.cast);
-  bossY.position.set(AP.x,H/2-0.25,AP.z); g.add(bossY);
+  const bossZ=cyl(1.25,1.25,1.05,20,G.cast); bossZ.rotation.x=Math.PI/2;
+  bossZ.position.set(AP.x,AP.y,-D/2+0.35); g.add(bossZ);
+  const bossY=cyl(1.25,1.25,1.05,20,G.cast);
+  bossY.position.set(AP.x,H/2-0.2,AP.z); g.add(bossY);
 
   function update(spin){
     SP.forEach(s=>{ s.mesh.rotation.z=s.phase*Math.PI/180+spin*s.ratio; });
-    /* Euler order XYZ applies Z first, so rotation.z spins each gear about its OWN
-       axis after the tilt. Driving bevB on rotation.y made it tumble instead.
-       Matching surface speed at the tangent line needs equal angular rates about
-       each gear's +axis; bevB's local +Z points to world -Y, hence the sign flip. */
     const bs=spin*0.62;
     bevA.rotation.z=bs;
     bevB.rotation.z=-bs+BPHASE;
