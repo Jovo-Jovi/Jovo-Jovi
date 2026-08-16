@@ -35,6 +35,24 @@
 
 ---
 
+### 🌐 Portfolio
+
+<div align="center">
+
+<a href="https://jovo-jovi.vercel.app">
+  <img src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/portfolio-card.png" width="100%" alt="Portfolio snapshot: gearbox, walking humanoid, quadcopter drone, neural learning graph, and backend request stack"/>
+</a>
+
+<sub>Opening sequence · mechanics · humanoid · drone · learning nodes · backend</sub>
+
+<br/>
+
+[**→ jovo-jovi.vercel.app**](https://jovo-jovi.vercel.app)
+
+</div>
+
+---
+
 ### 🧰 Tech Toolbox
 
 <div align="center">
