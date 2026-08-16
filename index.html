@@ -14,6 +14,7 @@
 <meta name="twitter:image" content="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/portfolio-card.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="/assets/hdri/brown_photostudio_02_1k.hdr" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -65,7 +66,7 @@ img,svg,canvas{display:block;max-width:100%}
 /* ---------- hero sequence ---------- */
 .track{position:relative;height:900vh}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--bg)}
-#gl{position:absolute;inset:0;width:100%;height:100%;max-width:none;opacity:0;transition:opacity .9s ease}
+#gl{position:absolute;inset:0;width:100%;height:100%;max-width:none;opacity:0;transition:opacity .35s ease}
 #gl.ready{opacity:1}
 .cap[data-act="0"]{opacity:1;transform:none}
 .caps,.hud,.tel{z-index:4}

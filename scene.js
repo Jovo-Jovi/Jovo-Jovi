@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -44,7 +45,7 @@ const camera=new THREE.PerspectiveCamera(38,1,0.1,500);
 
 const key=new THREE.DirectionalLight(0xFFF1DA,2.3);
 key.position.set(-18,30,20); key.castShadow=true;
-key.shadow.mapSize.set(innerWidth<820?1024:2048,innerWidth<820?1024:2048);
+key.shadow.mapSize.set(1024,1024);
 key.shadow.camera.near=1; key.shadow.camera.far=120;
 key.shadow.camera.left=-46; key.shadow.camera.right=46;
 key.shadow.camera.top=46; key.shadow.camera.bottom=-46;
@@ -169,8 +170,12 @@ grid.position.y=-12.95; grid.material.transparent=true; grid.material.opacity=0;
 
   const cap0=document.querySelector('.cap[data-act="0"]');
   if(cap0){ cap0.style.opacity='1'; cap0.style.transform='translateY(0)'; }
-  camera.position.set(13,0,15);
-  camera.lookAt(8.5,0.5,0);
+  camera.position.set(16,2,26);
+  camera.lookAt(0,1.2,0);
+
+  /* studio reflections on first frame — do not wait for the HDRI download */
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  scene.environment=pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
 
 /* ================= GEAR GEOMETRY ================= */
@@ -194,8 +199,8 @@ function gearGeom(z,depth,taper){
     for(let i=0;i<nb;i++){const a=i*Math.PI*2/nb; const h=new THREE.Path();
       h.absarc(rr*Math.cos(a),rr*Math.sin(a),rP*0.082,0,Math.PI*2,true); sh.holes.push(h);}
   }
-  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.18,
-    bevelSize:MOD*.16,bevelSegments:4,curveSegments:8,steps:1});
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:true,bevelThickness:MOD*.16,
+    bevelSize:MOD*.14,bevelSegments:2,curveSegments:5,steps:1});
   g.translate(0,0,-depth/2);
   if(taper){
     const pos=g.attributes.position;
@@ -215,19 +220,19 @@ const GBOX=(function(){
   function scratchTex(size,rep,pits){
     const c=document.createElement('canvas'); c.width=c.height=size;
     const x=c.getContext('2d');
-    x.fillStyle='#7a7a7a'; x.fillRect(0,0,size,size);
-    for(let i=0;i<size*16;i++){
-      const y=Math.random()*size, v=70+Math.random()*110;
-      x.strokeStyle='rgba('+v+','+v+','+v+','+(0.1+Math.random()*0.28)+')';
-      x.lineWidth=Math.random()*1.6+0.2;
+    x.fillStyle='#6e6e6e'; x.fillRect(0,0,size,size);
+    for(let i=0;i<size*12;i++){
+      const y=Math.random()*size, v=55+Math.random()*140;
+      x.strokeStyle='rgba('+v+','+v+','+v+','+(0.12+Math.random()*0.32)+')';
+      x.lineWidth=Math.random()*1.5+0.18;
       x.beginPath(); x.moveTo(Math.random()*size,y);
-      x.lineTo(Math.random()*size,y+(Math.random()-0.5)*1.8); x.stroke();
+      x.lineTo(Math.random()*size,y+(Math.random()-0.5)*1.6); x.stroke();
     }
     if(pits){
-      for(let i=0;i<120;i++){
-        const v=40+Math.random()*50;
-        x.fillStyle='rgba('+v+','+v+','+v+','+(0.15+Math.random()*0.3)+')';
-        x.beginPath(); x.arc(Math.random()*size,Math.random()*size,Math.random()*2.4+0.4,0,Math.PI*2); x.fill();
+      for(let i=0;i<90;i++){
+        const v=35+Math.random()*55;
+        x.fillStyle='rgba('+v+','+v+','+v+','+(0.18+Math.random()*0.32)+')';
+        x.beginPath(); x.arc(Math.random()*size,Math.random()*size,Math.random()*2.2+0.35,0,Math.PI*2); x.fill();
       }
     }
     const t=new THREE.CanvasTexture(c);
@@ -235,28 +240,30 @@ const GBOX=(function(){
     t.anisotropy=maxAniso; t.colorSpace=THREE.NoColorSpace;
     return t;
   }
-  const steelMap=scratchTex(512,4,false);
-  const bronzeMap=scratchTex(512,3.2,true);
-  const castMap=scratchTex(256,8,true);
+  const steelMap=scratchTex(256,5,false);
+  const bronzeMap=scratchTex(256,3.4,true);
+  const castMap=scratchTex(256,9,true);
 
   const G={
-    steel: new THREE.MeshPhysicalMaterial({color:0xC9D0D8,metalness:1,roughness:0.28,roughnessMap:steelMap,
-      envMapIntensity:1.85,clearcoat:0.35,clearcoatRoughness:0.22,bumpMap:steelMap,bumpScale:0.012}),
-    bronze: new THREE.MeshPhysicalMaterial({color:0xC9963A,metalness:1,roughness:0.34,roughnessMap:bronzeMap,
-      envMapIntensity:1.9,clearcoat:0.22,clearcoatRoughness:0.3,bumpMap:bronzeMap,bumpScale:0.016}),
-    dark: new THREE.MeshPhysicalMaterial({color:0x5C6570,metalness:1,roughness:0.48,roughnessMap:steelMap,
-      envMapIntensity:1.35,clearcoat:0.12,clearcoatRoughness:0.4,bumpMap:steelMap,bumpScale:0.01}),
-    cast: new THREE.MeshPhysicalMaterial({color:0x2A313A,metalness:0.62,roughness:0.78,roughnessMap:castMap,
-      envMapIntensity:0.95,clearcoat:0.06,clearcoatRoughness:0.7,bumpMap:castMap,bumpScale:0.035}),
-    brush: new THREE.MeshPhysicalMaterial({color:0xA7B1BC,metalness:1,roughness:0.32,roughnessMap:brushed,
-      envMapIntensity:1.7,clearcoat:0.28,clearcoatRoughness:0.18,bumpMap:brushed,bumpScale:0.008}),
-    glass: new THREE.MeshPhysicalMaterial({color:0xEEF6FF,metalness:0,roughness:0.025,transmission:0.94,
-      thickness:0.45,ior:1.5,envMapIntensity:2.4,clearcoat:1,clearcoatRoughness:0.03,
-      transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide}),
-    oil: new THREE.MeshPhysicalMaterial({color:0xC48A22,metalness:0,roughness:0.08,transmission:0.7,
-      thickness:4.2,ior:1.47,attenuationColor:0xB87414,attenuationDistance:3.2,
-      envMapIntensity:2.0,clearcoat:0.55,clearcoatRoughness:0.12,
-      transparent:true,opacity:1,depthWrite:false,side:THREE.DoubleSide})
+    steel: new THREE.MeshPhysicalMaterial({color:0xD0D6DE,metalness:1,roughness:0.26,roughnessMap:steelMap,
+      envMapIntensity:1.9,clearcoat:0.28,clearcoatRoughness:0.2,bumpMap:steelMap,bumpScale:0.01}),
+    bronze: new THREE.MeshPhysicalMaterial({color:0xC99738,metalness:1,roughness:0.32,roughnessMap:bronzeMap,
+      envMapIntensity:1.95,clearcoat:0.18,clearcoatRoughness:0.28,bumpMap:bronzeMap,bumpScale:0.014}),
+    dark: new THREE.MeshPhysicalMaterial({color:0x4E575F,metalness:1,roughness:0.5,roughnessMap:steelMap,
+      envMapIntensity:1.25,clearcoat:0.1,clearcoatRoughness:0.42,bumpMap:steelMap,bumpScale:0.01}),
+    cast: new THREE.MeshPhysicalMaterial({color:0x1C2229,metalness:0.72,roughness:0.74,roughnessMap:castMap,
+      envMapIntensity:0.85,clearcoat:0.05,clearcoatRoughness:0.65,bumpMap:castMap,bumpScale:0.04}),
+    brush: new THREE.MeshPhysicalMaterial({color:0xB4BDC6,metalness:1,roughness:0.3,roughnessMap:brushed,
+      envMapIntensity:1.75,clearcoat:0.32,clearcoatRoughness:0.16,bumpMap:brushed,bumpScale:0.008}),
+    /* one front pane only — five transmissive walls were slow and read as a glass case, not the card */
+    glass: new THREE.MeshPhysicalMaterial({color:0xF3F8FF,metalness:0,roughness:0.03,transmission:0.9,
+      thickness:0.32,ior:1.5,envMapIntensity:2.5,clearcoat:1,clearcoatRoughness:0.025}),
+    oil: new THREE.MeshPhysicalMaterial({color:0xC48A22,metalness:0,roughness:0.1,transmission:0.58,
+      thickness:5.5,ior:1.47,attenuationColor:0xA65C0A,attenuationDistance:2.6,
+      envMapIntensity:1.85,clearcoat:0.45,clearcoatRoughness:0.14}),
+    oilSkin: new THREE.MeshPhysicalMaterial({color:0xE0B24A,metalness:0.12,roughness:0.06,
+      transparent:true,opacity:0.38,clearcoat:1,clearcoatRoughness:0.05,
+      envMapIntensity:2.3,depthWrite:false,side:THREE.DoubleSide})
   };
 
   function hexBolt(r,h,mat){
@@ -271,33 +278,35 @@ const GBOX=(function(){
     const m=new THREE.Mesh(geom,mat); m.castShadow=true; m.receiveShadow=true; return m;
   }
 
-  const W=30, H=20, D=11, FR=1.25;
+  const W=30, H=20, D=11, FR=1.55, WALL=1.4;
 
-  /* heavy back casting — gives the card's solid-box read without trapping the key light */
-  const back=box(W-0.2,H-0.2,0.85,G.cast); back.position.z=-D/2+0.12; g.add(back);
-  const backRib=box(W-6,0.55,0.4,G.dark); backRib.position.set(0,0,-D/2+0.55); g.add(backRib);
+  /* solid industrial shell — opaque walls, one front viewport */
+  const back=box(W,H,WALL,G.cast); back.position.z=-D/2+WALL/2; g.add(back);
+  const left=box(WALL,H,D,G.cast); left.position.x=-W/2+WALL/2; g.add(left);
+  const right=box(WALL,H,D,G.cast); right.position.x=W/2-WALL/2; g.add(right);
+  const lid=box(W,WALL,D,G.cast); lid.position.y=H/2-WALL/2; g.add(lid);
 
   const bar=(w,h,d,x,y,z,mat)=>{const m=box(w,h,d,mat||G.brush);m.position.set(x,y,z);g.add(m);};
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sy,sz])=>bar(W,FR,FR,0,sy*H/2,sz*D/2,G.brush));
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>bar(FR,H,FR,sx*W/2,0,sz*D/2,G.brush));
-  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sy])=>bar(FR,FR,D,sx*W/2,sy*H/2,0,G.brush));
-  [-1,1].forEach(sx=>[-1,1].forEach(sy=>[-1,1].forEach(sz=>{
-    const c=box(1.55,1.55,1.55,G.cast); c.position.set(sx*W/2,sy*H/2,sz*D/2); g.add(c);
-  })));
+  bar(W,FR,FR,0, H/2, D/2, G.brush);
+  bar(W,FR,FR,0,-H/2, D/2, G.brush);
+  bar(FR,H,FR,-W/2,0, D/2, G.brush);
+  bar(FR,H,FR, W/2,0, D/2, G.brush);
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sy])=>{
+    const c=box(2.15,2.15,2.15,G.cast); c.position.set(sx*W/2,sy*H/2,D/2); g.add(c);
+  });
 
-  const pane=(w,h,d,x,y,z)=>{
-    const m=new THREE.Mesh(rboxGeom(w,h,d),G.glass);
-    m.position.set(x,y,z); m.castShadow=false; m.receiveShadow=false; m.renderOrder=2; g.add(m);
-  };
-  pane(W-FR*1.15,H-FR*1.15,0.22, 0,0, D/2-0.18);
-  pane(W-FR*1.15,H-FR*1.15,0.22, 0,0,-D/2+0.55);
-  pane(0.22,H-FR*1.15,D-FR, -W/2+0.18,0,0);
-  pane(0.22,H-FR*1.15,D-FR,  W/2-0.18,0,0);
-  pane(W-FR*1.15,0.22,D-FR, 0, H/2-0.18,0);
+  const glass=new THREE.Mesh(rboxGeom(W-FR*1.45,H-FR*1.45,0.26),G.glass);
+  glass.position.set(0,0,D/2-0.08);
+  glass.castShadow=false; glass.receiveShadow=false; g.add(glass);
 
-  const sump=box(W-FR,1.35,D-FR,G.cast); sump.position.y=-H/2+0.68; g.add(sump);
-  const oil=new THREE.Mesh(rboxGeom(W-FR-0.7,5.4,D-FR-0.7),G.oil);
-  oil.position.y=-H/2+3.55; oil.castShadow=false; oil.renderOrder=1; g.add(oil);
+  const sump=box(W-WALL,1.55,D-WALL,G.cast); sump.position.y=-H/2+0.78; g.add(sump);
+  const oilH=6.7;
+  const oil=new THREE.Mesh(rboxGeom(W-WALL-0.55,oilH,D-WALL-0.55),G.oil);
+  oil.position.y=-H/2+0.95+oilH/2; oil.castShadow=false; g.add(oil);
+  const oilSurf=new THREE.Mesh(new THREE.PlaneGeometry(W-WALL-0.75,D-WALL-0.75),G.oilSkin);
+  oilSurf.rotation.x=-Math.PI/2;
+  oilSurf.position.y=-H/2+0.95+oilH-0.04;
+  oilSurf.renderOrder=1; g.add(oilSurf);
   for(let i=0;i<13;i++){
     const f=box(0.95,1.55,D+0.7,G.cast); f.position.set(-W/2+2.6+i*2.1,-H/2-0.7,0); g.add(f);
   }
@@ -305,18 +314,18 @@ const GBOX=(function(){
   for(let i=0;i<9;i++){
     const px=-W/2+2.6+i*((W-5.2)/8);
     [-1,1].forEach(sy=>{
-      const b=hexBolt(0.32,0.38,G.dark);
-      b.rotation.x=Math.PI/2; b.position.set(px,sy*H/2,D/2+0.28); g.add(b);
+      const b=hexBolt(0.34,0.4,G.dark);
+      b.rotation.x=Math.PI/2; b.position.set(px,sy*H/2,D/2+0.32); g.add(b);
     });
   }
-  const plate=box(5.1,1.7,0.16,G.brush); plate.position.set(W/2-5.0,-H/2-0.02,D/2+0.36); g.add(plate);
+  const plate=box(5.1,1.7,0.16,G.brush); plate.position.set(W/2-5.0,-H/2-0.02,D/2+0.42); g.add(plate);
   for(let i=0;i<3;i++){
     const l=box(3.4-(i%2)*1.15,0.12,0.05,G.dark);
-    l.position.set(W/2-5.25+(i%2)*0.5,-H/2+0.42-i*0.42,D/2+0.46); g.add(l);
+    l.position.set(W/2-5.25+(i%2)*0.5,-H/2+0.42-i*0.42,D/2+0.52); g.add(l);
   }
-  const fillCap=cyl(0.55,0.55,0.5,16,G.bronze); fillCap.position.set(-W/2+3.2,H/2+0.15,0); g.add(fillCap);
+  const fillCap=cyl(0.55,0.55,0.5,16,G.bronze); fillCap.position.set(-W/2+3.2,H/2+0.18,0); g.add(fillCap);
   const drain=cyl(0.38,0.38,0.42,12,G.dark); drain.rotation.x=Math.PI/2;
-  drain.position.set(W/2-2.4,-H/2+0.2,D/2+0.15); g.add(drain);
+  drain.position.set(W/2-2.4,-H/2+0.2,D/2+0.18); g.add(drain);
 
   const ped=new THREE.Group(); ped.position.set(0,-15,0); g.add(ped);
   const pBase=box(W-3.2,0.95,D+1.8,G.cast); pBase.position.y=0.48; ped.add(pBase);
@@ -330,14 +339,17 @@ const GBOX=(function(){
   }
   contact(W+16,D+14,0,0.06,0,ped);
 
-  const fill=new THREE.PointLight(0xFFE2B0,1.35,32,2); fill.position.set(2,2,4.5); g.add(fill);
-  const area=new THREE.RectAreaLight(0xFFF4E0,7.5,16,5.5);
-  area.position.set(4,7,13); g.add(area); area.lookAt(0,0,0);
+  const cabin=new THREE.PointLight(0xFFD7A0,2.1,22,2); cabin.position.set(0,-1.2,2.2); g.add(cabin);
+  const area=new THREE.RectAreaLight(0xFFF4E0,8.5,18,6);
+  area.position.set(-2,9,14); g.add(area); area.lookAt(0,1,0);
+  const edge=new THREE.RectAreaLight(0xFFE8C4,4.2,14,2.2);
+  edge.position.set(-10,11,6); g.add(edge); edge.lookAt(0,4,0);
 
-  const SPZ=1.5;
+  const SPZ=1.55;
   const SP=[{z:12,mat:'steel', d:1.55,parent:null,ang:0,  x:-11.0,y:4.5},
-            {z:22,mat:'bronze',d:1.7,parent:0,   ang:-50},
-            {z:12,mat:'dark',  d:1.45,parent:1,   ang:55}];
+            {z:22,mat:'bronze',d:1.75,parent:0,   ang:-50},
+            {z:12,mat:'dark',  d:1.45,parent:1,   ang:55},
+            {z:14,mat:'steel', d:1.5, parent:2,   ang:-18}];
   SP.forEach(s=>{
     s.rP=MOD*s.z/2; s.pa=360/s.z;
     if(s.parent!==null){
@@ -348,10 +360,22 @@ const GBOX=(function(){
     } else { s.phase=0; s.ratio=1; }
     const m=new THREE.Mesh(gearGeom(s.z,s.d),G[s.mat]);
     m.position.set(s.x,s.y,SPZ); m.castShadow=m.receiveShadow=true; g.add(m);
-    const hub=cyl(s.rP*0.34,s.rP*0.34,s.d+0.28,20,G.dark);
+    const hub=cyl(s.rP*0.34,s.rP*0.34,s.d+0.28,16,G.dark);
     hub.rotation.x=Math.PI/2; m.add(hub);
-    const sf=cyl(s.rP*0.18,s.rP*0.18,D-1.2,16,G.dark);
-    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.15); g.add(sf);
+    const sf=cyl(s.rP*0.18,s.rP*0.18,D-WALL-0.6,14,G.dark);
+    sf.rotation.x=Math.PI/2; sf.position.set(s.x,s.y,SPZ-1.05); g.add(sf);
+    s.mesh=m;
+  });
+
+  /* second plane — the card is packed with overlapping cogs, not a single layer */
+  const BG=[
+    {z:18,mat:'dark',  d:1.15,x:-7.2,y:0.8, ratio: 0.42},
+    {z:11,mat:'bronze',d:1.05,x: 2.4,y:4.6, ratio:-0.78},
+    {z:15,mat:'steel', d:1.2, x:-1.6,y:-3.8,ratio: 0.55}
+  ];
+  BG.forEach(s=>{
+    const m=new THREE.Mesh(gearGeom(s.z,s.d),G[s.mat]);
+    m.position.set(s.x,s.y,-0.85); m.castShadow=m.receiveShadow=true; g.add(m);
     s.mesh=m;
   });
 
@@ -366,17 +390,18 @@ const GBOX=(function(){
   bevB.castShadow=bevB.receiveShadow=true; g.add(bevB);
   const BPHASE=Math.PI/BZ;
 
-  const inShaft=cyl(0.58,0.58,7.2,18,G.dark); inShaft.rotation.x=Math.PI/2;
-  inShaft.position.set(AP.x,AP.y,AP.z-APEXOFF-2.2); g.add(inShaft);
-  const outShaft=cyl(0.58,0.58,9.2,18,G.dark);
-  outShaft.position.set(AP.x,AP.y+APEXOFF+3.6,AP.z); g.add(outShaft);
-  const bossZ=cyl(1.25,1.25,1.05,20,G.cast); bossZ.rotation.x=Math.PI/2;
-  bossZ.position.set(AP.x,AP.y,-D/2+0.35); g.add(bossZ);
-  const bossY=cyl(1.25,1.25,1.05,20,G.cast);
-  bossY.position.set(AP.x,H/2-0.2,AP.z); g.add(bossY);
+  const inShaft=cyl(0.58,0.58,6.4,16,G.dark); inShaft.rotation.x=Math.PI/2;
+  inShaft.position.set(AP.x,AP.y,AP.z-APEXOFF-1.8); g.add(inShaft);
+  const outShaft=cyl(0.58,0.58,7.4,16,G.dark);
+  outShaft.position.set(AP.x,AP.y+APEXOFF+2.8,AP.z); g.add(outShaft);
+  const bossZ=cyl(1.25,1.25,1.05,18,G.cast); bossZ.rotation.x=Math.PI/2;
+  bossZ.position.set(AP.x,AP.y,-D/2+WALL+0.15); g.add(bossZ);
+  const bossY=cyl(1.25,1.25,1.05,18,G.cast);
+  bossY.position.set(AP.x,H/2-WALL-0.05,AP.z); g.add(bossY);
 
   function update(spin){
     SP.forEach(s=>{ s.mesh.rotation.z=s.phase*Math.PI/180+spin*s.ratio; });
+    BG.forEach(s=>{ s.mesh.rotation.z=spin*s.ratio; });
     const bs=spin*0.62;
     bevA.rotation.z=bs;
     bevB.rotation.z=-bs+BPHASE;
@@ -384,8 +409,12 @@ const GBOX=(function(){
   return {g,update};
 })();
 
+/* later acts wait until the gearbox has painted once */
+let ARM=null, HUM=null, DRONE=null, NET=null, BACK=null;
+function buildLaterActs(){
+if(ARM) return;
 /* ================= ACT 2 — SIX-AXIS ARM ================= */
-const ARM=(function(){
+ARM=(function(){
   const BASE=new THREE.Vector3(36,-13,8), L1=9.2, L2=7.6;
   const root=new THREE.Group(); root.position.copy(BASE); scene.add(root);
   const plinth=cyl(2.5,3.2,1.5,32,M.dark); plinth.position.y=.75; root.add(plinth);
@@ -442,7 +471,7 @@ const ARM=(function(){
 })();
 
 /* ================= ACT 3 — HUMANOID ================= */
-const HUM=(function(){
+HUM=(function(){
   const root=new THREE.Group(); root.position.set(-30,-13,4); root.rotation.y=0.5; scene.add(root);
   /* hip 7.75 + thigh 3.8 + shin 3.4 + tread puts the sole at +0.03 above the floor,
      with the walk bob of 0.16 taken off. At 7.4 the feet were 1.12 units underground. */
@@ -516,7 +545,7 @@ const HUM=(function(){
 })();
 
 /* ================= ACT 4 — DRONE ================= */
-const DRONE=(function(){
+DRONE=(function(){
   const root=new THREE.Group(); scene.add(root);
   const body=box(2.9,.85,2.4,M.shellD); root.add(body);
   const canopy=box(1.7,.55,1.35,M.shell); canopy.position.y=.6; root.add(canopy);
@@ -574,7 +603,7 @@ const DRONE=(function(){
 })();
 
 /* ================= ACT 5 — NEURAL NETWORK ================= */
-const NET=(function(){
+NET=(function(){
   const root=new THREE.Group(); root.position.set(0,10,-32); scene.add(root);
   const LAY=[4,7,7,3], SPX=7, SPY=2.9, SEGS=9;
   const nodes=[], pos=[];
@@ -630,7 +659,7 @@ const NET=(function(){
 })();
 
 /* ================= ACT 6 — BACKEND CORE ================= */
-const BACK=(function(){
+BACK=(function(){
   const root=new THREE.Group(); root.position.set(0,-2,-64); scene.add(root);
   const stage=document.getElementById('stage');
   const LAYERS=[
@@ -705,10 +734,16 @@ const BACK=(function(){
   function hide(){labels.forEach(l=>l.style.opacity=0);}
   return {root,update,hide};
 })();
+  ARM.root.visible=ARM.part.visible=false;
+  HUM.root.visible=false;
+  DRONE.root.visible=false;
+  NET.root.visible=false;
+  BACK.root.visible=false;
+}
 
 /* ================= ACTS + CAMERA ================= */
 const ACTS=[
-  {n:'IDLE · GLASS GEARBOX',a:0, b:.08,cam:[13,0,15],  look:[8.5,.5,0]},
+  {n:'IDLE · GLASS GEARBOX',a:0, b:.08,cam:[16,2,26],  look:[0,1.2,0]},
   {n:'ACT 1 · MECHANICS', a:.08, b:.22,cam:[4,7,40],   look:[0,2,0]},
   {n:'ACT 2 · ROBOTICS',  a:.20, b:.36,cam:[54,0,32],  look:[32,-6,6]},
   {n:'ACT 3 · HUMANOID',  a:.36, b:.50,cam:[-48,0,28], look:[-29,-5,8]},
@@ -757,7 +792,7 @@ function frame(now){
   const dt=Math.min((now-last)/1000,.05); last=now;
   const r=track.getBoundingClientRect();
   const reduced=document.body.classList.contains('reduced');
-  if(!reduced&&(r.bottom<0||r.top>innerHeight)){BACK.hide();return;}
+  if(!reduced&&(r.bottom<0||r.top>innerHeight)){if(BACK) BACK.hide();return;}
   const p=reduced?.30:clamp(-r.top/(r.height-innerHeight),0,1);
 
   let i=0; while(i<ACTS.length-1&&p>ACTS[i].b) i++;
@@ -789,33 +824,43 @@ function frame(now){
 
   /* act 2 */
   const aOn=p>.15&&p<.42;
-  ARM.root.visible=ARM.part.visible=aOn;
   let st={a1:0,a2:0,yaw:0,g:0};
-  if(aOn){ ARM.root.scale.setScalar(Math.max(.001,smooth(seg(p,.16,.24))));
-    st=ARM.update(clamp(seg(p,.19,.38),0,1)); }
+  if(ARM){
+    ARM.root.visible=ARM.part.visible=aOn;
+    if(aOn){ ARM.root.scale.setScalar(Math.max(.001,smooth(seg(p,.16,.24))));
+      st=ARM.update(clamp(seg(p,.19,.38),0,1)); }
+  }
 
   /* act 3 */
   const hOn=p>.31&&p<.56;
-  HUM.root.visible=hOn;
-  if(hOn){ HUM.root.scale.setScalar(Math.max(.001,smooth(seg(p,.32,.40))));
-    HUM.update(clamp(seg(p,.34,.52),0,1)); }
+  if(HUM){
+    HUM.root.visible=hOn;
+    if(hOn){ HUM.root.scale.setScalar(Math.max(.001,smooth(seg(p,.32,.40))));
+      HUM.update(clamp(seg(p,.34,.52),0,1)); }
+  }
 
   /* act 4 */
   const dOn=p>.45&&p<.68;
-  DRONE.root.visible=dOn;
-  if(dOn){ DRONE.root.scale.setScalar(Math.max(.001,smooth(seg(p,.46,.53))));
-    DRONE.update(clamp(seg(p,.47,.66),0,1),dt); }
+  if(DRONE){
+    DRONE.root.visible=dOn;
+    if(dOn){ DRONE.root.scale.setScalar(Math.max(.001,smooth(seg(p,.46,.53))));
+      DRONE.update(clamp(seg(p,.47,.66),0,1),dt); }
+  }
 
   /* act 5 */
   const nOn=p>.57&&p<.82;
-  NET.root.visible=nOn;
-  if(nOn) NET.update(clamp(seg(p,.58,.80),0,1),now);
+  if(NET){
+    NET.root.visible=nOn;
+    if(nOn) NET.update(clamp(seg(p,.58,.80),0,1),now);
+  }
 
   /* act 6 */
   const bOn=p>.70;
-  BACK.root.visible=bOn;
   let denied=false;
-  if(bOn) denied=BACK.update(clamp(seg(p,.72,.94),0,1),now,camera); else BACK.hide();
+  if(BACK){
+    BACK.root.visible=bOn;
+    if(bOn) denied=BACK.update(clamp(seg(p,.72,.94),0,1),now,camera); else BACK.hide();
+  }
 
   if(!reduced) caps.forEach(el=>{
     const A=ACTS[+el.dataset.act];
@@ -829,17 +874,21 @@ function frame(now){
   dots.forEach((d,j)=>d.classList.toggle('on',j===Math.max(0,i-1)));
   tel.textContent = p<.45
     ? `θ_yaw ${st.yaw.toFixed(0)}° · θ₁ ${st.a1.toFixed(0)}° · θ₂ ${st.a2.toFixed(0)}° · grip ${(st.g*100).toFixed(0)}%`
-    : p<.72 ? `alt ${(DRONE.root.position.y+13).toFixed(1)} m · layers 4 · nodes 21 · epoch ${(p*100).toFixed(0)}`
+    : p<.72 ? `alt ${((DRONE?DRONE.root.position.y:0)+13).toFixed(1)} m · layers 4 · nodes 21 · epoch ${(p*100).toFixed(0)}`
             : `${denied?'403 · rls denied':'200 · rls allow'} · tables 43 · roles 4 · p ${p.toFixed(3)}`;
 
   renderer.render(scene,camera);
 }
 
+  renderer.compile(scene, camera);
   canvas.classList.add('ready');
   requestAnimationFrame(frame);
-
-  new RGBELoader().load('/assets/hdri/brown_photostudio_02_2k.hdr', (env) => {
-    env.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = env;
-  }, undefined, (err) => console.warn('HDRI failed', err));
+  requestAnimationFrame(() => {
+    buildLaterActs();
+    new RGBELoader().load('/assets/hdri/brown_photostudio_02_1k.hdr', (tex) => {
+      const env=pmrem.fromEquirectangular(tex).texture;
+      tex.dispose();
+      scene.environment=env;
+    }, undefined, (err) => console.warn('HDRI failed', err));
+  });
 }
