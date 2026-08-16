@@ -159,7 +159,7 @@ Production-grade marketplace built on a modular monolith: **Next.js 15 · Supaba
 <a href="mailto:jiovanny.adel@gmail.com">
   <img src="https://img.shields.io/badge/Email-Contact-F59E0B?style=for-the-badge&logo=gmail&logoColor=white&labelColor=09090B" alt="email"/>
 </a>
-<a href="https://YOUR-PORTFOLIO.com">
+<a href="https://jovo-jovi.vercel.app">
   <img src="https://img.shields.io/badge/Portfolio-Visit-FBBF24?style=for-the-badge&logo=vercel&logoColor=black&labelColor=09090B" alt="portfolio"/>
 </a>
 
