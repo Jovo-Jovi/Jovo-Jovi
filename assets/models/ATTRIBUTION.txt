@@ -1,0 +1,16 @@
+Scene assets
+
+Brown Photostudio 02 2K HDR
+  https://polyhaven.com/a/brown_photostudio_02
+  CC0 — Poly Haven
+
+UR5 visual meshes (ur5.glb)
+  https://github.com/ros-industrial/universal_robot
+  BSD-3-Clause — ros-industrial / Universal Robots UR5
+
+RobotExpressive (humanoid.glb)
+  https://github.com/mrdoob/three.js (examples/models/gltf/RobotExpressive)
+  CC0 — Tomás Laulhé
+
+gearbox.glb / drone.glb
+  Scene-specific meshes authored for this page
