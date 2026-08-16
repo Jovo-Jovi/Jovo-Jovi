@@ -184,7 +184,7 @@ async function boot() {
   const grid = new THREE.GridHelper(240, 80, 0x1E2731, 0x141A21);
   grid.position.y = -12.95;
   grid.material.transparent = true;
-  grid.material.opacity = 0;
+  grid.material.opacity = 0.16;
   scene.add(grid);
 
   /* act-0 caption is already in the DOM — never leave the first screen blank */
@@ -193,16 +193,32 @@ async function boot() {
     cap0.style.opacity = '1';
     cap0.style.transform = 'translateY(0)';
   }
+  const telEarly = document.getElementById('tel');
+  if (telEarly) telEarly.textContent = 'loading studio…';
 
-  /* HDRI first — environment only, never as background */
+  /* paint the floor/grid immediately — do not wait on the 2K HDRI */
+  camera.position.set(13, 0, 15);
+  camera.lookAt(8.5, 0.5, 0);
+  {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (w && h) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+  renderer.render(scene, camera);
+  canvas.classList.add('ready');
+
+  /* HDRI first among assets — environment only, never as background */
   const env = await new RGBELoader().loadAsync('/assets/hdri/brown_photostudio_02_2k.hdr');
   env.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = env;
+  renderer.render(scene, camera);
 
   const manager = new THREE.LoadingManager();
-  manager.onLoad = () => canvas.classList.add('ready');
   const draco = new DRACOLoader(manager);
-  draco.setDecoderPath('https://unpkg.com/three@0.160.1/examples/jsm/libs/draco/gltf/');
+  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/libs/draco/gltf/');
   const gltfLoader = new GLTFLoader(manager);
   gltfLoader.setDRACOLoader(draco);
 
@@ -345,10 +361,10 @@ async function boot() {
     boneRoot.updateWorldMatrix(true, true);
     const bb = new THREE.Box3().setFromObject(boneRoot);
     const size = bb.getSize(new THREE.Vector3());
-    if (size.y > 0.001) model.scale.setScalar(14.2 / size.y);
+    if (Number.isFinite(size.y) && size.y > 0.001) model.scale.setScalar(14.2 / size.y);
     model.updateMatrixWorld(true);
     bb.setFromObject(boneRoot);
-    model.position.y += -8.55 - bb.min.y;
+    if (Number.isFinite(bb.min.y)) model.position.y += -8.55 - bb.min.y;
     const torso = byBone(model, 'Torso');
     const head = byBone(model, 'Head');
     const visor = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.003, 0.002), M.emitA);
