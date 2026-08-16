@@ -512,7 +512,7 @@ async function boot() {
         const ph = (now * 0.00055 + e * 0.021) % 1.6;
         for (let s = 0; s < SEGS; s++) {
           const u = (s + 0.5) / SEGS;
-          const pulse = Math.exp(-((u - ph) * 4.6) ** 2) * grow;
+          const pulse = Math.exp(-(((u - ph) * 4.6) ** 2)) * grow;
           const v = learn * 0.30 + pulse * 1.25;
           for (let k2 = 0; k2 < 2; k2++) {
             col[ci++] = v * 1.0;
