@@ -295,8 +295,8 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+    "three": "https://unpkg.com/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.1/examples/jsm/"
   }
 }
 </script>
@@ -828,12 +828,16 @@ rmBtn.addEventListener('click',()=>{
   document.querySelectorAll('.lbl').forEach(l=>l.style.opacity=0);
 });
 if(matchMedia('(prefers-reduced-motion: reduce)').matches) rmBtn.click();
-
-setTimeout(function(){
-  const gl=document.getElementById('gl'), fb=document.getElementById('fb');
-  if(gl && !gl.classList.contains('ready') && fb) fb.style.display='flex';
-}, 15000);
 </script>
-<script type="module" src="scene.js"></script>
+<script type="module">
+import('./scene.js').catch((err)=>{
+  console.error(err);
+  const fb=document.getElementById('fb');
+  if(fb){
+    fb.textContent='The opening sequence failed to load. Everything else on this page works — scroll on.';
+    fb.style.display='flex';
+  }
+});
+</script>
 </body>
 </html>

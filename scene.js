@@ -35,19 +35,29 @@ function enableShadows(root) {
   });
 }
 
-if (!document.createElement('canvas').getContext('webgl')) {
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl'));
+  } catch {
+    return false;
+  }
+}
+
+if (!hasWebGL()) {
   document.getElementById('fb').style.display = 'flex';
 } else {
   boot().catch((err) => {
     console.error(err);
-    document.getElementById('fb').style.display = 'flex';
+    const tel = document.getElementById('tel');
+    if (tel) tel.textContent = 'scene error — scroll for the page';
   });
 }
 
 async function boot() {
   const canvas = document.getElementById('gl');
   const stageEl = document.getElementById('stage');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -211,26 +221,38 @@ async function boot() {
   canvas.classList.add('ready');
 
   /* HDRI first among assets — environment only, never as background */
-  const env = await new RGBELoader().loadAsync('/assets/hdri/brown_photostudio_02_2k.hdr');
-  env.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = env;
-  renderer.render(scene, camera);
+  try {
+    const env = await new RGBELoader().loadAsync('/assets/hdri/brown_photostudio_02_2k.hdr');
+    env.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = env;
+    renderer.render(scene, camera);
+  } catch (err) {
+    console.warn('HDRI failed', err);
+  }
 
   const manager = new THREE.LoadingManager();
   const draco = new DRACOLoader(manager);
-  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/libs/draco/gltf/');
+  draco.setDecoderPath('https://unpkg.com/three@0.160.1/examples/jsm/libs/draco/gltf/');
   const gltfLoader = new GLTFLoader(manager);
   gltfLoader.setDRACOLoader(draco);
 
-  const [gearboxGltf, ur5Gltf, humanoidGltf, droneGltf] = await Promise.all([
+  const loaded = await Promise.allSettled([
     gltfLoader.loadAsync('/assets/models/gearbox.glb'),
     gltfLoader.loadAsync('/assets/models/ur5.glb'),
     gltfLoader.loadAsync('/assets/models/humanoid.glb'),
     gltfLoader.loadAsync('/assets/models/drone.glb'),
   ]);
+  loaded.forEach((r, i) => { if (r.status === 'rejected') console.warn('GLB failed', i, r.reason); });
+  const gearboxGltf = loaded[0].status === 'fulfilled' ? loaded[0].value : null;
+  const ur5Gltf = loaded[1].status === 'fulfilled' ? loaded[1].value : null;
+  const humanoidGltf = loaded[2].status === 'fulfilled' ? loaded[2].value : null;
+  const droneGltf = loaded[3].status === 'fulfilled' ? loaded[3].value : null;
 
   /* ================= ACT 1 — GEARBOX ================= */
-  const GBOX = (function () {
+  let GBOX = null;
+  try {
+  if (!gearboxGltf) throw new Error('gearbox.glb missing');
+  GBOX = (function () {
     const g = gearboxGltf.scene;
     g.position.set(0, 2, 0);
     enableShadows(g);
@@ -274,9 +296,13 @@ async function boot() {
     }
     return { g, update };
   })();
+  } catch (err) { console.warn('GBOX', err); GBOX = null; }
 
   /* ================= ACT 2 — SIX-AXIS ARM ================= */
-  const ARM = (function () {
+  let ARM = null;
+  try {
+  if (!ur5Gltf) throw new Error('ur5.glb missing');
+  ARM = (function () {
     const BASE = new THREE.Vector3(36, -13, 8), L1 = 9.2, L2 = 7.6;
     const root = new THREE.Group();
     root.position.copy(BASE);
@@ -340,9 +366,13 @@ async function boot() {
     }
     return { root, part, update };
   })();
+  } catch (err) { console.warn('ARM', err); ARM = null; }
 
   /* ================= ACT 3 — HUMANOID ================= */
-  const HUM = (function () {
+  let HUM = null;
+  try {
+  if (!humanoidGltf) throw new Error('humanoid.glb missing');
+  HUM = (function () {
     const root = new THREE.Group();
     root.position.set(-30, -13, 4);
     root.rotation.y = 0.5;
@@ -397,9 +427,13 @@ async function boot() {
     }
     return { root, update };
   })();
+  } catch (err) { console.warn('HUM', err); HUM = null; }
 
   /* ================= ACT 4 — DRONE ================= */
-  const DRONE = (function () {
+  let DRONE = null;
+  try {
+  if (!droneGltf) throw new Error('drone.glb missing');
+  DRONE = (function () {
     const root = droneGltf.scene;
     enableShadows(root);
     scene.add(root);
@@ -426,6 +460,7 @@ async function boot() {
     }
     return { root, update };
   })();
+  } catch (err) { console.warn('DRONE', err); DRONE = null; }
 
   /* ================= ACT 5 — NEURAL NETWORK ================= */
   const NET = (function () {
@@ -672,33 +707,41 @@ async function boot() {
     grid.material.opacity = (0.16 + smooth(seg(p, 0, 0.12)) * 0.26) * (1 - seg(p, 0.60, 0.80));
 
     const gs = 1 - smooth(seg(p, 0.30, 0.345));
-    GBOX.g.visible = gs > 0.01;
-    if (GBOX.g.visible) {
-      spin += dt * (smooth(seg(p, 0.03, 0.22)) * 3.2 + 0.25);
-      GBOX.update(spin);
-      GBOX.g.scale.setScalar(gs);
+    if (GBOX) {
+      GBOX.g.visible = gs > 0.01;
+      if (GBOX.g.visible) {
+        spin += dt * (smooth(seg(p, 0.03, 0.22)) * 3.2 + 0.25);
+        GBOX.update(spin);
+        GBOX.g.scale.setScalar(gs);
+      }
     }
 
     const aOn = p > 0.15 && p < 0.42;
-    ARM.root.visible = ARM.part.visible = aOn;
     let st = { a1: 0, a2: 0, yaw: 0, g: 0 };
-    if (aOn) {
-      ARM.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.16, 0.24))));
-      st = ARM.update(clamp(seg(p, 0.19, 0.38), 0, 1));
+    if (ARM) {
+      ARM.root.visible = ARM.part.visible = aOn;
+      if (aOn) {
+        ARM.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.16, 0.24))));
+        st = ARM.update(clamp(seg(p, 0.19, 0.38), 0, 1));
+      }
     }
 
     const hOn = p > 0.31 && p < 0.56;
-    HUM.root.visible = hOn;
-    if (hOn) {
-      HUM.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.32, 0.40))));
-      HUM.update(clamp(seg(p, 0.34, 0.52), 0, 1));
+    if (HUM) {
+      HUM.root.visible = hOn;
+      if (hOn) {
+        HUM.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.32, 0.40))));
+        HUM.update(clamp(seg(p, 0.34, 0.52), 0, 1));
+      }
     }
 
     const dOn = p > 0.45 && p < 0.68;
-    DRONE.root.visible = dOn;
-    if (dOn) {
-      DRONE.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.46, 0.53))));
-      DRONE.update(clamp(seg(p, 0.47, 0.66), 0, 1), dt);
+    if (DRONE) {
+      DRONE.root.visible = dOn;
+      if (dOn) {
+        DRONE.root.scale.setScalar(Math.max(0.001, smooth(seg(p, 0.46, 0.53))));
+        DRONE.update(clamp(seg(p, 0.47, 0.66), 0, 1), dt);
+      }
     }
 
     const nOn = p > 0.57 && p < 0.82;
@@ -725,7 +768,7 @@ async function boot() {
     tel.textContent = p < 0.45
       ? `θ_yaw ${st.yaw.toFixed(0)}° · θ₁ ${st.a1.toFixed(0)}° · θ₂ ${st.a2.toFixed(0)}° · grip ${(st.g * 100).toFixed(0)}%`
       : p < 0.72
-        ? `alt ${(DRONE.root.position.y + 13).toFixed(1)} m · layers 4 · nodes 21 · epoch ${(p * 100).toFixed(0)}`
+        ? `alt ${((DRONE ? DRONE.root.position.y : 0) + 13).toFixed(1)} m · layers 4 · nodes 21 · epoch ${(p * 100).toFixed(0)}`
         : `${denied ? '403 · rls denied' : '200 · rls allow'} · tables 43 · roles 4 · p ${p.toFixed(3)}`;
 
     renderer.render(scene, camera);
