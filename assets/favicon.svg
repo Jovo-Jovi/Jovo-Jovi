@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Jiovanny Adel">
+  <rect width="32" height="32" rx="8" fill="#07080A"/>
+  <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="6.75" fill="none" stroke="#C08A3E" stroke-width="1.5"/>
+  <path d="M12.2 8.2h8.2v12.1c0 3.05-2.28 5.35-5.7 5.35-3.42 0-5.7-2.3-5.7-5.35" fill="none" stroke="#E6EAEF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16.3" cy="25.65" r="1.15" fill="#C08A3E"/>
+</svg>
