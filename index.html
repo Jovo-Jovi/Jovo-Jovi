@@ -15,16 +15,16 @@
 <meta property="og:url" content="https://jovo-jovi.vercel.app/">
 <meta property="og:title" content="Jiovanny Adel — Mechatronics Engineer · Product Engineer">
 <meta property="og:description" content="Marketplace and business software, built front to back. Opening sequence: mechanics, humanoid, drone, learning graph, backend.">
-<meta property="og:image" content="https://jovo-jovi.vercel.app/assets/og.jpg?v=1">
-<meta property="og:image:secure_url" content="https://jovo-jovi.vercel.app/assets/og.jpg?v=1">
+<meta property="og:image" content="https://jovo-jovi.vercel.app/assets/renders/og-card.jpg">
+<meta property="og:image:secure_url" content="https://jovo-jovi.vercel.app/assets/renders/og-card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jiovanny Adel — gearbox, humanoid, drone, learning graph, backend stack">
+<meta property="og:image:alt" content="Glass industrial gearbox with brass and steel gears in an amber oil bath">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Jiovanny Adel — Mechatronics Engineer · Product Engineer">
 <meta name="twitter:description" content="Marketplace and business software, built front to back. Opening sequence: mechanics, humanoid, drone, learning graph, backend.">
-<meta name="twitter:image" content="https://jovo-jovi.vercel.app/assets/og.jpg?v=1">
+<meta name="twitter:image" content="https://jovo-jovi.vercel.app/assets/renders/og-card.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="/assets/hdri/brown_photostudio_02_1k.hdr" as="fetch" crossorigin>
@@ -160,7 +160,7 @@ body.reduced .bar{display:none}
 
 /* full-bleed key visual */
 .keyvis{margin-top:clamp(30px,5vw,56px);border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
-.keyvis svg{width:100%;display:block}
+.keyvis svg,.keyvis img,.keyvis picture{width:100%;display:block}
 .keycap{font-size:14px;color:var(--mut);margin:16px 0 0;max-width:52ch}
 
 /* three-up highlights */
@@ -178,8 +178,8 @@ body.reduced .bar{display:none}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;
   display:flex;flex-direction:column;transition:border-color .3s,transform .4s cubic-bezier(.2,.9,.25,1)}
 .card:hover{border-color:#3C4652;transform:translateY(-4px)}
-.mv{position:relative;background:var(--mvBg);border-bottom:1px solid var(--line)}
-.mv svg{width:100%;height:100%;display:block}
+.mv{position:relative;background:var(--mvBg);border-bottom:1px solid var(--line);overflow:hidden}
+.mv svg,.mv img,.mv picture{width:100%;height:100%;display:block}
 .mv.r11{aspect-ratio:1/1}.mv.r32{aspect-ratio:3/2}.mv.r169{aspect-ratio:16/9}.mv.r219{aspect-ratio:21/9}
 .card .txt{padding:clamp(18px,2.2vw,26px)}
 .card .st{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
@@ -245,8 +245,8 @@ footer.foot{border-top:1px solid var(--line);padding:34px 0 70px}
 .card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;
   background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%),rgba(192,138,62,.12),transparent 62%)}
 .card:hover::after{opacity:1}
-.mv svg{transition:transform .7s cubic-bezier(.2,.9,.25,1)}
-.card:hover .mv svg{transform:scale(1.035)}
+.mv svg,.mv img{transition:transform .7s cubic-bezier(.2,.9,.25,1)}
+.card:hover .mv svg,.card:hover .mv img{transform:scale(1.035)}
 .card:hover .st{box-shadow:0 0 0 3px rgba(192,138,62,.10)}
 .keyvis{transition:border-color .45s}
 .keyvis:hover{border-color:#4C596A}
@@ -438,37 +438,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
     <div class="wrap">
       <figure class="keyvis" style="margin:0">
-        <svg viewBox="0 0 1260 540" role="img" aria-label="System band: client, edge, server actions, permission gate, database">
-          <g class="s0">
-            <path d="M60 470h1140M60 456v28M1200 456v28"/>
-          </g>
-          <text class="txa" x="60" y="506">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</text>
-          <g>
-            <rect x="60" y="120" width="196" height="270" rx="10" class="f0"/><rect x="60" y="120" width="196" height="270" rx="10" class="s1"/>
-            <rect x="292" y="120" width="196" height="270" rx="10" class="f0"/><rect x="292" y="120" width="196" height="270" rx="10" class="s1"/>
-            <rect x="524" y="120" width="196" height="270" rx="10" class="f0"/><rect x="524" y="120" width="196" height="270" rx="10" class="s1"/>
-            <rect x="756" y="120" width="196" height="270" rx="10" class="f0"/><rect x="756" y="120" width="196" height="270" rx="10" class="sa"/>
-            <rect x="988" y="120" width="212" height="270" rx="10" class="f0"/><rect x="988" y="120" width="212" height="270" rx="10" class="s1"/>
-          </g>
-          <g class="tx" text-anchor="middle">
-            <text x="158" y="366">01</text><text x="390" y="366">02</text><text x="622" y="366">03</text>
-            <text x="854" y="366">04</text><text x="1094" y="366">05</text>
-          </g>
-          <g class="svHead" fill="#D5DDE7" font-family="Inter, sans-serif" font-size="17" font-weight="600" text-anchor="middle">
-            <text x="158" y="230">Client</text><text x="390" y="230">Edge</text><text x="622" y="230">Server actions</text>
-            <text x="854" y="230" fill="#C08A3E">Permission gate</text><text x="1094" y="230">Postgres</text>
-          </g>
-          <g class="tx" text-anchor="middle">
-            <text x="158" y="256">Next.js 15 · RTL</text><text x="390" y="256">Vercel</text><text x="622" y="256">Zod validated</text>
-            <text x="854" y="256">RLS · default deny</text><text x="1094" y="256">43 tables · 4 roles</text>
-          </g>
-          <g class="sa flowline"><path d="M256 255h36M488 255h36M720 255h36M952 255h36"/></g>
-          <g class="fa nudge"><path d="M292 255l-9-4v8zM524 255l-9-4v8zM756 255l-9-4v8zM988 255l-9-4v8z"/></g>
-          <circle cx="854" cy="150" r="4" class="fa blip"/>
-          <circle cx="158" cy="255" r="7" class="fg packet" style="--tx:936px"/>
-          <g class="s0"><path d="M60 60h1140" opacity=".5"/></g>
-          <text class="tx" x="60" y="44">SYSTEM BAND · BETK</text>
-        </svg>
+        <picture>
+          <source type="image/webp" srcset="/assets/renders/system-band.webp">
+          <img src="/assets/renders/system-band.jpg" alt="Five brass-framed glass slabs in a row, the fourth edge-lit amber, with a green cube travelling a rail through their midpoints" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+        </picture>
       </figure>
       <p class="keycap">Nothing reaches the data without passing validation and a per-row permission check. That is the part of the design I spend the most time on.</p>
     </div>
@@ -498,31 +471,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-a">
           <div class="mv r11">
-            <svg viewBox="0 0 500 500" role="img" aria-label="BETK right-to-left storefront layout">
-              <rect x="70" y="40" width="360" height="420" rx="18" class="f0"/><rect x="70" y="40" width="360" height="420" rx="18" class="s1"/>
-              <rect x="250" y="70" width="152" height="26" rx="13" class="f1"/><rect x="250" y="70" width="152" height="26" rx="13" class="s0"/>
-              <circle cx="386" cy="83" r="5" class="sa blip" style="animation-delay:.7s"/>
-              <rect x="98" y="70" width="60" height="26" rx="13" class="sa"/>
-              <text class="txa" x="128" y="87" text-anchor="middle">عربي</text>
-              <g class="s0">
-                <rect x="250" y="120" width="152" height="112" rx="9"/><rect x="98" y="120" width="136" height="112" rx="9"/>
-                <rect x="250" y="250" width="152" height="112" rx="9"/><rect x="98" y="250" width="136" height="112" rx="9"/>
-              </g>
-              <g class="f1">
-                <rect x="258" y="128" width="136" height="60" rx="5"/><rect x="106" y="128" width="120" height="60" rx="5"/>
-                <rect x="258" y="258" width="136" height="60" rx="5"/><rect x="106" y="258" width="120" height="60" rx="5"/>
-              </g>
-              <g class="svBar" fill="#4A5665">
-                <rect x="316" y="198" width="78" height="7" rx="3.5"/><rect x="344" y="212" width="50" height="6" rx="3"/>
-                <rect x="166" y="198" width="60" height="7" rx="3.5"/><rect x="186" y="212" width="40" height="6" rx="3"/>
-                <rect x="300" y="328" width="94" height="7" rx="3.5"/><rect x="352" y="342" width="42" height="6" rx="3"/>
-                <rect x="150" y="328" width="76" height="7" rx="3.5"/><rect x="196" y="342" width="30" height="6" rx="3"/>
-              </g>
-              <rect x="98" y="386" width="304" height="44" rx="10" class="f1"/><rect x="98" y="386" width="304" height="44" rx="10" class="sa"/>
-              <text class="txa" x="386" y="412" text-anchor="end">دفع مقسّم · عربون + عند الاستلام</text>
-              <circle cx="118" cy="408" r="7" class="sg blip"/>
-              <text class="tx" x="70" y="486">RTL · VERIFIED STOREFRONT · CUSTODIAL SPLIT PAYMENT</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/betk.webp">
+              <img src="/assets/renders/betk.jpg" alt="Brass-framed glass storefront panel with a right-to-left grid of blank glowing product tiles and a green verification lamp" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt">
             <span class="st dev">In development</span>
@@ -534,31 +486,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-b">
           <div class="mv r11">
-            <svg viewBox="0 0 500 500" role="img" aria-label="B2S multi-tenant white-label architecture">
-              <rect x="175" y="205" width="150" height="90" rx="12" class="f1"/><rect x="175" y="205" width="150" height="90" rx="12" class="sa"/>
-              <text x="250" y="245" text-anchor="middle" class="svHead" fill="#E4EAF1" font-family="Inter, sans-serif" font-size="17" font-weight="600">Core</text>
-              <text class="tx" x="250" y="266" text-anchor="middle">one codebase</text>
-              <g class="s1">
-                <rect x="40" y="60" width="150" height="86" rx="11"/><rect x="310" y="60" width="150" height="86" rx="11"/>
-                <rect x="40" y="356" width="150" height="86" rx="11"/><rect x="310" y="356" width="150" height="86" rx="11"/>
-              </g>
-              <g class="tx" text-anchor="middle">
-                <text x="115" y="98">TENANT 01</text><text x="385" y="98">TENANT 02</text>
-                <text x="115" y="394">TENANT 03</text><text x="385" y="394">TENANT 04</text>
-              </g>
-              <g text-anchor="middle" class="svSub" fill="#7E8B9A" font-family="Inter, sans-serif" font-size="12">
-                <text x="115" y="120">own brand</text><text x="385" y="120">own domain</text>
-                <text x="115" y="416">own catalogue</text><text x="385" y="416">own pricing</text>
-              </g>
-              <rect x="40" y="60" width="5" height="86" rx="2.5" class="fa"/>
-              <rect x="310" y="60" width="5" height="86" rx="2.5" fill="#6E8DB8"/>
-              <rect x="40" y="356" width="5" height="86" rx="2.5" fill="#4ED18B"/>
-              <rect x="310" y="356" width="5" height="86" rx="2.5" fill="#B08CFF"/>
-              <g class="s0 flowline">
-                <path d="M175 240L150 146M325 240L350 146M175 262L150 356M325 262L350 356"/>
-              </g>
-              <text class="tx" x="40" y="480">SIX STANDALONE TOOLS → ONE TENANTED APPLICATION</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/b2s.webp">
+              <img src="/assets/renders/b2s.jpg" alt="Solid brass core cube with four orbiting glass panels edge-lit in brass, grey, green and amber, joined by thin filaments" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt">
             <span class="st dev">In development</span>
@@ -571,31 +502,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-c">
           <div class="mv r219">
-            <svg viewBox="0 0 1260 540" role="img" aria-label="Reviewer agent pipeline with verdict gate and carry-forward loop">
-              <g class="s1">
-                <rect x="60" y="180" width="190" height="120" rx="12"/><rect x="320" y="180" width="190" height="120" rx="12"/>
-                <rect x="840" y="180" width="190" height="120" rx="12"/><rect x="1080" y="180" width="150" height="120" rx="12"/>
-              </g>
-              <rect x="580" y="160" width="190" height="160" rx="12" class="f1"/><rect x="580" y="160" width="190" height="160" rx="12" class="sa"/>
-              <g class="svHead" fill="#DDE4EC" font-family="Inter, sans-serif" font-size="16" font-weight="600" text-anchor="middle">
-                <text x="155" y="238">Spec</text><text x="415" y="238">Build</text>
-                <text x="675" y="232" fill="#C08A3E">Reviewer</text><text x="935" y="238">Freeze</text><text x="1155" y="238">Next phase</text>
-              </g>
-              <g class="tx" text-anchor="middle">
-                <text x="155" y="262">rules · IDs</text><text x="415" y="262">tasks emitted</text>
-                <text x="675" y="256">verdict</text><text x="675" y="274">writes no code</text>
-                <text x="935" y="262">document locked</text><text x="1155" y="262">sequenced</text>
-              </g>
-              <g class="sa flowline"><path d="M250 240h64M510 240h64M770 240h64M1030 240h44"/></g>
-              <g class="fa nudge"><path d="M320 240l-10-4.5v9zM580 240l-10-4.5v9zM840 240l-10-4.5v9zM1080 240l-10-4.5v9z"/></g>
-              <path d="M675 320v70H415v-84" class="s0" stroke-dasharray="5 5"/>
-              <path d="M415 306l-5 10h10z" class="svBar" fill="#4E5A69"/>
-              <text class="tx" x="545" y="410" text-anchor="middle">CARRY-FORWARDS</text>
-              <g><circle cx="632" cy="196" r="5" class="fg blip"/>
-                 <circle cx="652" cy="196" r="5" class="fa blip" style="animation-delay:.7s"/>
-                 <circle cx="672" cy="196" r="5" class="fr blip" style="animation-delay:1.4s"/></g>
-              <text class="tx" x="60" y="470">PASS · REVISE · BLOCK — EVERY PHASE CHECKED AGAINST A FROZEN DOCUMENT</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/reviewer.webp">
+              <img src="/assets/renders/reviewer.jpg" alt="Industrial conveyor of brass-framed glass plates with a central stamp gate and green, amber and red status lamps" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt">
             <span class="st dev">In development</span>
@@ -607,19 +517,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-d">
           <div class="mv r32">
-            <svg viewBox="0 0 600 400" role="img" aria-label="Row-level security allowing one row and denying others">
-              <g class="s0"><rect x="50" y="60" width="500" height="46" rx="8"/><rect x="50" y="118" width="500" height="46" rx="8"/>
-                <rect x="50" y="234" width="500" height="46" rx="8"/><rect x="50" y="292" width="500" height="46" rx="8"/></g>
-              <rect x="50" y="176" width="500" height="46" rx="8" class="f1"/><rect x="50" y="176" width="500" height="46" rx="8" class="sa glowrow"/>
-              <g class="svBar" fill="#39434F"><rect x="72" y="78" width="160" height="9" rx="4.5"/><rect x="72" y="136" width="200" height="9" rx="4.5"/>
-                <rect x="72" y="252" width="180" height="9" rx="4.5"/><rect x="72" y="310" width="140" height="9" rx="4.5"/></g>
-              <rect x="72" y="194" width="220" height="9" rx="4.5" class="svBarHi" fill="#9FAEBE"/>
-              <g class="tx" text-anchor="end">
-                <text x="528" y="87">denied</text><text x="528" y="145">denied</text>
-                <text x="528" y="261">denied</text><text x="528" y="319">denied</text></g>
-              <text class="txa" x="528" y="203" text-anchor="end">auth.uid() = owner_id</text>
-              <text class="tx" x="50" y="378">DEFAULT DENY · A SELLER REACHES ONLY THEIR OWN ROWS</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/rls.webp">
+              <img src="/assets/renders/rls.jpg" alt="Five stacked glass plates; four dim with closed brass padlocks, the middle plate glowing green with its padlock open" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt"><h3>Row-level security</h3>
             <p>Every table denies by default; access is granted by explicit policy, enforced in the database rather than trusted to the application.</p></div>
@@ -627,23 +528,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-e">
           <div class="mv r32">
-            <svg viewBox="0 0 600 400" role="img" aria-label="Bilingual mirrored layout, Arabic and English">
-              <g class="s1"><rect x="40" y="60" width="240" height="240" rx="12"/><rect x="320" y="60" width="240" height="240" rx="12"/></g>
-              <g class="svBar" fill="#39434F">
-                <rect x="180" y="86" width="80" height="10" rx="5"/><rect x="140" y="108" width="120" height="8" rx="4"/>
-                <rect x="200" y="128" width="60" height="8" rx="4"/>
-                <rect x="60" y="86" width="80" height="10" rx="5"/><rect x="340" y="86" width="80" height="10" rx="5"/>
-                <rect x="340" y="108" width="120" height="8" rx="4"/><rect x="340" y="128" width="60" height="8" rx="4"/></g>
-              <g class="s0"><rect x="60" y="160" width="90" height="60" rx="6"/><rect x="170" y="160" width="90" height="60" rx="6"/>
-                <rect x="340" y="160" width="90" height="60" rx="6"/><rect x="450" y="160" width="90" height="60" rx="6"/></g>
-              <rect x="180" y="242" width="80" height="26" rx="13" class="sa"/>
-              <rect x="340" y="242" width="80" height="26" rx="13" class="s0"/>
-              <text class="txa" x="220" y="259" text-anchor="middle">عربي</text>
-              <text class="tx" x="380" y="259" text-anchor="middle">ENGLISH</text>
-              <path d="M286 180h28" class="sa flowline"/><path d="M320 180l-10-4.5v9z" class="fa nudge"/>
-              <path d="M314 200h-28" class="sa flowline"/><path d="M280 200l10-4.5v9z" class="fa nudge"/>
-              <text class="tx" x="40" y="352">DIRECTION FLIPS, LAYOUT MIRRORS, NUMERALS STAY LTR</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/bilingual.webp">
+              <img src="/assets/renders/bilingual.jpg" alt="Two mirrored brass-framed glass panels with abstract glowing bars running opposite directions and a brass toggle with a green lamp between them" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt"><h3>Bilingual by construction</h3>
             <p>Arabic and English with a full RTL mirror, and left-to-right islands preserved for digits and references.</p></div>
@@ -651,28 +539,10 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
 
         <article class="card m-f">
           <div class="mv r32">
-            <svg viewBox="0 0 600 400" role="img" aria-label="Registration form feeding a record table and an audit trail">
-              <g class="s1"><rect x="40" y="60" width="150" height="180" rx="10"/></g>
-              <g class="svBar" fill="#39434F"><rect x="60" y="86" width="90" height="8" rx="4"/><rect x="60" y="108" width="110" height="18" rx="5"/>
-                <rect x="60" y="138" width="70" height="8" rx="4"/><rect x="60" y="160" width="110" height="18" rx="5"/></g>
-              <rect x="60" y="196" width="72" height="22" rx="11" class="sa"/>
-              <text class="txa" x="96" y="211" text-anchor="middle">SUBMIT</text>
-              <g class="s1"><rect x="230" y="60" width="150" height="180" rx="10"/></g>
-              <g class="s0"><path d="M230 96h150M230 128h150M230 160h150M230 192h150"/></g>
-              <g class="svBar" fill="#39434F"><rect x="248" y="76" width="60" height="7" rx="3.5"/><rect x="248" y="108" width="90" height="7" rx="3.5"/>
-                <rect x="248" y="140" width="72" height="7" rx="3.5"/><rect x="248" y="172" width="100" height="7" rx="3.5"/></g>
-              <g class="s1"><rect x="420" y="60" width="140" height="180" rx="10"/></g>
-              <g class="sg"><path d="M446 92v120"/></g>
-              <g class="fg"><circle cx="446" cy="100" r="4" class="blip"/>
-                <circle cx="446" cy="146" r="4" class="blip" style="animation-delay:.6s"/>
-                <circle cx="446" cy="192" r="4" class="blip" style="animation-delay:1.2s"/></g>
-              <g class="svBar" fill="#39434F"><rect x="462" y="96" width="70" height="7" rx="3.5"/><rect x="462" y="142" width="54" height="7" rx="3.5"/>
-                <rect x="462" y="188" width="80" height="7" rx="3.5"/></g>
-              <g class="sa flowline"><path d="M190 150h34M380 150h34"/></g>
-              <g class="fa nudge"><path d="M230 150l-10-4.5v9zM420 150l-10-4.5v9z"/></g>
-              <text class="tx" x="40" y="290">FORM → STRUCTURED RECORD → AUDIT TRAIL</text>
-              <text class="tx" x="40" y="352">DELIVERED FOR CLIENTS, 2021–2026</text>
-            </svg>
+            <picture>
+              <source type="image/webp" srcset="/assets/renders/tracking.webp">
+              <img src="/assets/renders/tracking.jpg" alt="Three brass machine stages: an input tray, a rotating record drum, and a rising ribbon of green-lit glass tags, connected by filaments" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            </picture>
           </div>
           <div class="txt"><span class="st done">Delivered</span>
             <h3>Registration &amp; tracking systems</h3>

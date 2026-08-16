@@ -2,3 +2,5 @@ _tmp_models
 
 .vercel
 .env*
+assets/renders/originals/
+assets/renders/*.png
