@@ -5,13 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jiovanny Adel — Mechatronics Engineer · Product Engineer</title>
 <meta name="description" content="Mechatronics engineer and product engineer in Cairo. Building BETK, an Arabic-first marketplace, and B2S, a white-label business platform.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://jovo-jovi.vercel.app">
-<meta property="og:title" content="Jiovanny Adel — Mechatronics Engineer · Product Engineer">
-<meta property="og:description" content="Marketplace and business software, built front to back. Opening sequence: mechanics, humanoid, drone, learning graph, backend.">
-<meta property="og:image" content="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/portfolio-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/portfolio-card.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -313,6 +306,12 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
     <div class="tel" id="tel">—</div>
 
     <div class="caps" id="caps">
+      <article class="cap" data-act="0">
+        <div class="n">Mechatronics engineer · Product engineer</div>
+        <h2>Jiovanny<br>Adel</h2>
+        <p>Marketplace and business software, built front to back. Currently building BETK and B2S, in Cairo.</p>
+        <div class="meta"><i>Scroll to run the machine ↓</i></div>
+      </article>
       <article class="cap" data-act="1">
         <div class="n">01 · Mechanics</div>
         <h2>It starts<br>as a machine</h2>
@@ -1075,7 +1074,7 @@ const GBOX=(function(){
   }
 
   /* floor is at y=-13 and the housing floor sits at y=-8.3, so the pedestal spans that gap */
-  const ped=new THREE.Group(); ped.position.set(0,-13,0); scene.add(ped);
+  const ped=new THREE.Group(); ped.position.set(0,-15,0); g.add(ped);
   const pBase=box(W-4,0.8,D+1.4,M.cast); pBase.position.y=0.4; ped.add(pBase);
   const pCol=box(W-11,3.4,D-2.4,M.cast); pCol.position.y=2.4; ped.add(pCol);
   const pTop=box(W-2,0.9,D+0.6,M.cast); pTop.position.y=4.35; ped.add(pTop);
@@ -1467,8 +1466,8 @@ const BACK=(function(){
 
 /* ================= ACTS + CAMERA ================= */
 const ACTS=[
-  {n:'ACT 0 · COLD START',a:0,   b:.05,cam:[11,1,13],  look:[8.5,.5,0]},
-  {n:'ACT 1 · MECHANICS', a:.05, b:.20,cam:[4,7,40],   look:[0,2,0]},
+  {n:'IDLE · GLASS GEARBOX',a:0, b:.08,cam:[13,0,15],  look:[8.5,.5,0]},
+  {n:'ACT 1 · MECHANICS', a:.08, b:.22,cam:[4,7,40],   look:[0,2,0]},
   {n:'ACT 2 · ROBOTICS',  a:.20, b:.36,cam:[54,0,32],  look:[32,-6,6]},
   {n:'ACT 3 · HUMANOID',  a:.36, b:.50,cam:[-48,0,28], look:[-29,-5,8]},
   {n:'ACT 4 · AUTONOMY',  a:.50, b:.62,cam:[8,20,50],  look:[0,15,0]},
@@ -1535,13 +1534,15 @@ function frame(now){
   scene.fog.color.copy(fogC); scene.background.copy(fogC);
   dust.rotation.y+=dt*0.01;
 
-  grid.material.opacity=smooth(seg(p,.02,.14))*.4*(1-seg(p,.60,.80));
+  grid.material.opacity=(0.16+smooth(seg(p,0,.12))*0.26)*(1-seg(p,.60,.80));
 
   /* act 1 */
-  const gOn=seg(p,0,.30)>0&&p<.34;
-  GBOX.g.visible=gOn;
-  if(gOn){ spin+=dt*(smooth(seg(p,.04,.22))*3.2+.25); GBOX.update(spin);
-    GBOX.g.scale.setScalar(Math.max(.001,smooth(seg(p,.01,.10)))); }
+  const gs=1-smooth(seg(p,.30,.345));
+  GBOX.g.visible=gs>0.01;
+  if(GBOX.g.visible){
+    spin+=dt*(smooth(seg(p,.03,.22))*3.2+.25); GBOX.update(spin);
+    GBOX.g.scale.setScalar(gs);
+  }
 
   /* act 2 */
   const aOn=p>.15&&p<.42;
@@ -1575,7 +1576,8 @@ function frame(now){
 
   if(!reduced) caps.forEach(el=>{
     const A=ACTS[+el.dataset.act];
-    const inK=smooth(seg(p,A.a,A.a+.04)), outK=smooth(seg(p,A.b-.032,A.b));
+    const inK = A.a===0 ? 1 : smooth(seg(p,A.a,A.a+.04));
+    const outK=smooth(seg(p,A.b-.032,A.b));
     el.style.opacity=(inK*(1-outK)).toFixed(3);
     el.style.transform=`translateY(${((1-inK)*24+outK*-20).toFixed(1)}px)`;
   });
