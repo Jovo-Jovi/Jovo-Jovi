@@ -4,3 +4,4 @@ _tmp_models
 .env*
 assets/renders/originals/
 assets/renders/*.png
+assets/loops/*.png

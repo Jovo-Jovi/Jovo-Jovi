@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Component loop test — Jiovanny Adel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080A;--surface:#0E1116;--surface2:#141920;--line:rgba(255,255,255,.09);
+  --txt:#E6EAEF;--mut:#8C97A5;--dim:#5F6975;--bronze:#C08A3E;--bronze2:#D9A65C;
+  --green:#4ED18B;--amber:#FFB020;--red:#E5484D}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:3px}
+.wrap{max-width:1240px;margin:0 auto;padding:34px clamp(16px,4vw,34px) 90px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze);margin:0}
+h1{font-size:clamp(24px,4.6vw,36px);font-weight:600;letter-spacing:-.03em;margin:12px 0 10px}
+.sub{margin:0;font-size:15px;line-height:1.7;color:var(--mut);max-width:66ch}
+.note{margin:18px 0 0;border-left:3px solid var(--bronze);background:var(--surface);padding:13px 15px;
+  font-size:13.5px;line-height:1.65;color:#B7C0CC;border-radius:0 7px 7px 0;max-width:72ch}
+.note b{color:var(--bronze2)}
+
+.bar{position:sticky;top:0;z-index:20;background:rgba(7,8,10,.9);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);margin:26px 0 0;padding:12px 0}
+.bar-in{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+button,select{font:inherit;font-size:12.5px;font-weight:500;background:var(--surface);color:var(--txt);
+  border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
+button:hover{border-color:#404A57}
+button[aria-pressed="true"]{background:var(--bronze);color:#14100A;border-color:var(--bronze);font-weight:600}
+label.rng{display:flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+input[type=range]{accent-color:var(--bronze);width:120px}
+
+.grid{display:grid;gap:clamp(16px,2vw,24px);margin-top:26px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+.slot{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stage{position:relative;aspect-ratio:1/1;background:#0B0F14;overflow:hidden}
+.stage img{width:100%;height:100%;object-fit:cover;display:block}
+.miss{position:absolute;inset:14px;border:1px dashed #3A4552;border-radius:10px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);line-height:1.8}
+.miss b{color:var(--bronze2);font-weight:500}
+
+/* the same CSS motion the portfolio applies to stills */
+body.fx .stage img{animation:kenburns 34s ease-in-out infinite alternate}
+@keyframes kenburns{from{transform:scale(1.005)}to{transform:scale(1.06) translate3d(-1.3%,-.9%,0)}}
+body.fx .stage::before{content:"";position:absolute;inset:-32%;pointer-events:none;z-index:2;
+  background:linear-gradient(72deg,transparent 43%,rgba(255,240,210,.07) 47%,rgba(255,240,210,.17) 50%,
+  rgba(255,240,210,.07) 53%,transparent 57%);transform:translateX(-125%);animation:sweep 13s ease-in-out infinite}
+@keyframes sweep{0%{transform:translateX(-125%)}38%,100%{transform:translateX(125%)}}
+body.fx .stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(62% 52% at 32% 38%,rgba(200,161,94,.055),transparent 72%);
+  animation:haze 29s ease-in-out infinite alternate}
+@keyframes haze{from{transform:translate3d(-4%,2%,0)}to{transform:translate3d(5%,-3%,0)}}
+body.rm .stage img,body.rm .stage::before,body.rm .stage::after{animation:none!important;transform:none!important}
+
+.meta{padding:15px 16px 17px}
+.mrow{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.mrow h2{font-size:17px;font-weight:600;letter-spacing:-.02em;margin:0}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  border:1px solid currentColor;border-radius:4px;padding:3px 7px;color:var(--dim)}
+.tag.ok{color:var(--green)}.tag.no{color:var(--red)}
+.hint{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--mut)}
+.diag{margin:11px 0 0;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;
+  color:var(--dim);line-height:1.85;white-space:pre-wrap}
+.ctl{display:flex;gap:7px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.ctl button{padding:7px 11px;font-size:11.5px}
+.scrub{flex:1;min-width:120px;accent-color:var(--bronze)}
+.fno{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--bronze2);min-width:52px;text-align:right}
+</style>
+</head>
+<body class="fx">
+<div class="wrap">
+  <p class="eyebrow">Step 0 · decide before you apply</p>
+  <h1>Component loop test</h1>
+  <p class="sub">Drop your generated files into <span class="mono">assets/loops/</span> next to this page and reload. Nothing here touches the portfolio — judge the loops first, apply second.</p>
+
+  <div class="note">
+    <b>The one thing to check.</b> Use <b>Seam</b> on each card. It flips between the last frame and the first frame, which is exactly where a generated loop breaks. If the object jumps, changes tooth count, or shifts brightness at that flip, the loop is dead and no amount of encoding saves it. Everything else — pretty lighting, nice materials — is secondary to that single test.
+  </div>
+
+  <div class="bar"><div class="bar-in">
+    <button id="mFrames" aria-pressed="true">Frame sequence</button>
+    <button id="mWebp" aria-pressed="false">Animated WebP</button>
+    <button id="mStill" aria-pressed="false">Still only</button>
+    <button id="playAll" aria-pressed="true">Pause all</button>
+    <label class="rng">FPS <input type="range" id="fps" min="4" max="24" value="12"><span id="fpsv" class="mono">12</span></label>
+    <button id="fx" aria-pressed="true">CSS motion</button>
+    <button id="rm" aria-pressed="false">Reduced motion</button>
+  </div></div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const BASE='assets/loops/';
+const COMPONENTS=[
+  {id:'gearbox', label:'Glass gearbox',  frames:12, hint:'Loop covers one tooth pitch. A 20-tooth driver returns to an identical image after 18°, and so does every gear meshed with it.'},
+  {id:'humanoid',label:'Humanoid',       frames:8,  hint:'Idle weight shift and visor pulse — not a walk. A generated walk cycle will morph the character between frames.'},
+  {id:'drone',   label:'Drone',          frames:8,  hint:'Hover bob on a sine, so the last frame flows back into the first. Rotors stay motion-blurred throughout.'},
+  {id:'neural',  label:'Neural nodes',   frames:10, hint:'Geometry never moves — only the glow travels. Easiest of the five to get right.'},
+  {id:'backend', label:'Backend layers', frames:10, hint:'The packet descends exactly one plate gap over the loop, so the restart is invisible.'}
+];
+
+const grid=document.getElementById('grid');
+let mode='frames', fps=12, playing=true;
+const cards=[];
+
+COMPONENTS.forEach(c=>{
+  const el=document.createElement('article'); el.className='slot';
+  el.innerHTML=`
+    <div class="stage">
+      <img alt="${c.label}">
+      <div class="miss" hidden>
+        <span>no file at</span>
+        <b>${BASE}${c.id}-01.jpg</b>
+        <span>expecting ${c.frames} frames · ${c.id}-01 … ${c.id}-${String(c.frames).padStart(2,'0')}</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="mrow"><h2>${c.label}</h2><span class="tag">waiting</span></div>
+      <p class="hint">${c.hint}</p>
+      <div class="ctl">
+        <button data-a="step-">◀</button>
+        <input class="scrub" type="range" min="1" max="${c.frames}" value="1">
+        <button data-a="step+">▶</button>
+        <span class="fno">1/${c.frames}</span>
+        <button data-a="seam">Seam</button>
+      </div>
+      <div class="diag">—</div>
+    </div>`;
+  grid.appendChild(el);
+
+  const o={c, el, img:el.querySelector('img'), miss:el.querySelector('.miss'),
+           tag:el.querySelector('.tag'), scrub:el.querySelector('.scrub'),
+           fno:el.querySelector('.fno'), diag:el.querySelector('.diag'),
+           imgs:[], ok:false, i:0, t:0, seam:false, seamOn:false};
+  cards.push(o);
+
+  /* preload the frame sequence */
+  let loaded=0, failed=0;
+  for(let k=1;k<=c.frames;k++){
+    const im=new Image();
+    im.onload=()=>{loaded++; if(loaded+failed===c.frames) settle(o,loaded,failed);};
+    im.onerror=()=>{failed++; if(loaded+failed===c.frames) settle(o,loaded,failed);};
+    im.src=BASE+c.id+'-'+String(k).padStart(2,'0')+'.jpg';
+    o.imgs.push(im);
+  }
+
+  el.querySelectorAll('[data-a]').forEach(b=>b.addEventListener('click',()=>{
+    const a=b.dataset.a;
+    if(a==='seam'){ o.seam=!o.seam; b.setAttribute('aria-pressed',o.seam); return; }
+    o.seam=false;
+    o.i=(o.i+(a==='step+'?1:-1)+o.c.frames)%o.c.frames;
+    show(o);
+  }));
+  o.scrub.addEventListener('input',()=>{o.seam=false;o.i=+o.scrub.value-1;show(o);});
+});
+
+function settle(o,loaded,failed){
+  o.ok = failed===0 && loaded===o.c.frames;
+  o.miss.hidden=o.ok;
+  o.tag.textContent = o.ok ? loaded+' frames' : (loaded? loaded+'/'+o.c.frames+' found' : 'missing');
+  o.tag.className = 'tag '+(o.ok?'ok':'no');
+  if(o.ok){
+    const f=o.imgs[0];
+    o.diag.textContent =
+      `${f.naturalWidth}×${f.naturalHeight}px · ${o.c.frames} frames\n`+
+      `at 12fps the loop runs ${(o.c.frames/12).toFixed(2)}s\n`+
+      `${transfer(o.c.id)}`;
+    show(o);
+  } else {
+    o.diag.textContent='waiting for '+BASE+o.c.id+'-NN.jpg';
+  }
+}
+function transfer(id){
+  const es=performance.getEntriesByType('resource').filter(e=>e.name.includes('/'+id+'-'));
+  if(!es.length) return 'transfer size unavailable';
+  const total=es.reduce((s,e)=>s+(e.transferSize||e.encodedBodySize||0),0);
+  if(!total) return 'transfer size unavailable (cached)';
+  return `sequence weight ${(total/1024).toFixed(0)} KB · ${(total/es.length/1024).toFixed(0)} KB per frame`;
+}
+function show(o){
+  if(!o.ok) return;
+  if(mode==='still'){ o.img.src=o.imgs[0].src; o.fno.textContent='still'; return; }
+  if(mode==='webp'){ return; }
+  o.img.src=o.imgs[o.i].src;
+  o.scrub.value=o.i+1;
+  o.fno.textContent=(o.i+1)+'/'+o.c.frames;
+}
+
+let last=0;
+function tick(now){
+  requestAnimationFrame(tick);
+  const dt=now-last;
+  cards.forEach(o=>{
+    if(!o.ok) return;
+    if(o.seam){
+      /* alternate last frame and first frame — the loop's weakest joint */
+      if(dt<420) return;
+      o.seamOn=!o.seamOn;
+      o.i=o.seamOn? o.c.frames-1 : 0;
+      o.img.src=o.imgs[o.i].src;
+      o.fno.textContent=(o.seamOn?'last':'first');
+      return;
+    }
+    if(!playing||mode!=='frames') return;
+    o.t+=dt;
+    if(o.t>=1000/fps){ o.t=0; o.i=(o.i+1)%o.c.frames; show(o); }
+  });
+  if(dt>=420) last=now;
+  else if(playing&&dt>=1000/fps) last=now;
+}
+requestAnimationFrame(t=>{last=t;requestAnimationFrame(tick);});
+
+function setMode(m){
+  mode=m;
+  ['mFrames','mWebp','mStill'].forEach((id,k)=>
+    document.getElementById(id).setAttribute('aria-pressed', ['frames','webp','still'][k]===m));
+  cards.forEach(o=>{
+    if(m==='webp'){
+      o.img.src=BASE+o.c.id+'-loop.webp';
+      o.fno.textContent='webp';
+      o.img.onerror=()=>{o.miss.hidden=false;o.tag.textContent='no webp';o.tag.className='tag no';};
+    } else { o.miss.hidden=o.ok; show(o); }
+  });
+}
+document.getElementById('mFrames').onclick=()=>setMode('frames');
+document.getElementById('mWebp').onclick=()=>setMode('webp');
+document.getElementById('mStill').onclick=()=>setMode('still');
+document.getElementById('playAll').onclick=e=>{
+  playing=!playing; e.target.setAttribute('aria-pressed',playing);
+  e.target.textContent=playing?'Pause all':'Play all';
+};
+document.getElementById('fps').oninput=e=>{fps=+e.target.value;document.getElementById('fpsv').textContent=fps;};
+document.getElementById('fx').onclick=e=>{
+  const on=!document.body.classList.contains('fx');
+  document.body.classList.toggle('fx',on); e.target.setAttribute('aria-pressed',on);
+};
+document.getElementById('rm').onclick=e=>{
+  const on=!document.body.classList.contains('rm');
+  document.body.classList.toggle('rm',on); e.target.setAttribute('aria-pressed',on);
+};
+</script>
+</body>
+</html>
