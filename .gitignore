@@ -3,5 +3,4 @@ _tmp_models
 .vercel
 .env*
 assets/renders/originals/
-assets/renders/*.png
-assets/loops/*.png
+assets/loops/*-[0-9][0-9].png
