@@ -256,3 +256,83 @@ way a motion-sensitive visitor gets a still.
 
 **And use at most one or two.** One moving image on a page is a focal point. Five is a slot
 machine, and it will bury the thing the page is actually for.
+
+---
+
+# ADDENDUM — revised order of work
+
+Your report changed the plan, correctly. Recording what actually happened and what comes next.
+
+## What you found
+
+Regenerating every frame as a fresh image **failed the lock immediately** — sphere counts and
+cameras drifted. That is the expected result and it is why the LOCK clause exists as a test
+rather than a guarantee. Your fix was the right one: take **one locked still** from
+`portfolio-card.png`, then build the loop *on top of that still* so the geometry can never drift.
+
+That inverts the guidance in section 4. Treat those prompts as a fallback, not the first choice.
+
+**Composite on a locked still. Do not regenerate frames.**
+
+Result, accepted: neural 446 KB · humanoid 269 KB · drone 183 KB · backend 104 KB ·
+gearbox still-only. Gearbox still-only is the correct call — a generated tooth pitch would jump
+teeth at the seam, and section 6 already says to skip the loop when CSS motion carries the still.
+
+## Two bugs in the first loop-test.html — both mine, both fixed
+
+1. **Everything vibrated.** The rAF accumulator only updated `last` conditionally, so `dt` grew
+   unbounded and every card advanced on every tick — playback ran at 60fps no matter what the
+   FPS slider said. Rewritten with a single accumulator updated every frame.
+2. **No gearbox appeared.** Still mode read `frames[0]`, and the gearbox has no frames. Every
+   slot now probes independently for a loop, a still, and an optional PNG sequence.
+
+The rebuilt page also defaults to **Loop** mode, because WebP is what you actually built.
+
+## Seam-testing a WebP
+
+A browser cannot step frames inside an `<img>`. Explode it first:
+
+```bash
+ffmpeg -i neural-loop.webp neural-%02d.png
+```
+
+Drop those PNGs beside the WebP and Frames mode picks them up. That said — a loop composited
+over one locked still has very low seam risk by construction, because the geometry never moved.
+Spend the effort on the gearbox decision instead.
+
+## NEXT STEP — fill the remaining slots before animating anything
+
+The rebuilt `loop-test.html` now lists **all twelve image slots the portfolio needs**, not just
+five. Generate the missing seven as plain stills using the prompts in `render-prompts.md`:
+
+| Folder | Files |
+|---|---|
+| `assets/renders/` | `betk.png` · `b2s.png` · `rls.png` · `bilingual.png` · `tracking.png` · `reviewer.png` · `system-band.png` |
+
+All static. None of them need motion — they are diagrams, and the page's CSS drift and sweep
+already give them life. The test page reports a running total of filled slots and combined
+weight against the 4 MB budget.
+
+**Only once every slot is filled** do we return to per-component animation. Deciding which two
+deserve a loop is much easier when you can see all twelve together.
+
+## Vercel 404 — diagnostic
+
+`NOT_FOUND` on a preview deploy is almost always one of five things. Check in this order:
+
+1. **Is the file committed on the branch?** `git ls-tree -r test/render-prompts --name-only | grep loop-test`
+   An untracked local file is invisible to Vercel.
+2. **`.vercelignore`.** If it lists `*.html` with an exception only for `index.html`, or ignores
+   `assets/`, your test page and every render is stripped from the deployment.
+3. **`vercel.json` rewrites.** A catch-all `{"source":"/(.*)","destination":"/index.html"}` sends
+   every path to the app — but a *missing* `outputDirectory` or a `builds` block pointing at a
+   folder that no longer exists after the cleanup gives you a hard 404 at root.
+4. **The deleted file.** You removed `portfolio-jovo.html`. Grep for it:
+   `grep -rn "portfolio-jovo" . --exclude-dir=.git` — a stale reference in `vercel.json` builds
+   will fail the whole deployment.
+5. **Branch previews are per-commit URLs.** The `fra1` id in your error is a specific deployment.
+   Open the Vercel dashboard, find that deployment, and read the **Build Logs** and the
+   **Source** tab — Source shows exactly which files were uploaded. If `loop-test.html` is not
+   in that list, it is cause 1 or 2.
+
+Paste `vercel.json` and `.vercelignore` here and I will tell you which.
