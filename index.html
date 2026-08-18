@@ -203,6 +203,16 @@ body.reduced .bar{display:none}
   color:var(--txt);background:linear-gradient(transparent,rgba(7,8,10,.85))}
 body.reduced .tile img{animation:none!important}
 @keyframes kenburns{from{transform:scale(1.005)}to{transform:scale(1.06) translate3d(-1.3%,-.9%,0)}}
+.gbx{overflow:hidden}
+.gbx-base{width:100%;display:block}
+.gbx-g{position:absolute;transform-origin:50% 50%;will-change:transform}
+/* 24s : 16s : 12s is the 24:16:12 tooth ratio — every gear passes the same
+   number of teeth per second, which is what makes the mesh read as correct */
+.gbx-g.g24{left:10.92%; top:28.07%; width:38.48%; animation:gbspin 24s linear infinite}
+.gbx-g.g16{left:46.44%; top:33.99%; width:26.64%; animation:gbspin 16s linear infinite reverse}
+.gbx-g.g12{left:70.12%; top:36.95%; width:20.72%; animation:gbspin 12s linear infinite}
+@keyframes gbspin{to{transform:rotate(360deg)}}
+body.reduced .gbx-g{animation:none}
 .tlink{display:inline-flex;align-items:center;gap:8px;margin-top:18px;text-decoration:none;font-size:13.5px;
   color:var(--bronze2);border-bottom:1px solid transparent;padding-bottom:2px}
 .tlink:hover{border-color:var(--bronze)}
@@ -458,7 +468,13 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
             <source srcset="/assets/loops/neural-still.webp" media="(prefers-reduced-motion: reduce)">
             <img src="/assets/loops/neural-loop.webp" alt="Neural network of gold spheres, signal travelling between layers" loading="lazy" decoding="async"></picture>
             <figcaption>Learning</figcaption></figure>
-          <figure class="tile"><img class="still" src="/assets/loops/gearbox-still.webp" alt="Glass gearbox with brass and steel gears above an oil bath" loading="lazy" decoding="async"><figcaption>Mechanism</figcaption></figure>
+          <figure class="tile gbx">
+            <img class="gbx-base" src="/assets/loops/gearbox-front.webp" alt="Glass gearbox, front elevation, brass and steel gears above an oil bath" loading="lazy" decoding="async">
+            <img class="gbx-g g24" src="/assets/loops/gear-a-cut.webp" alt="" aria-hidden="true">
+            <img class="gbx-g g16" src="/assets/loops/gear-b-cut.webp" alt="" aria-hidden="true">
+            <img class="gbx-g g12" src="/assets/loops/gear-c-cut.webp" alt="" aria-hidden="true">
+            <figcaption>Mechanism</figcaption>
+          </figure>
           <figure class="tile"><img class="still" src="/assets/loops/humanoid-still.webp" alt="Bipedal humanoid robot" loading="lazy" decoding="async"><figcaption>Motion</figcaption></figure>
           <figure class="tile"><img class="still" src="/assets/loops/drone-still.webp" alt="Quadcopter drone hovering" loading="lazy" decoding="async"><figcaption>Autonomy</figcaption></figure>
           <figure class="tile"><picture>
