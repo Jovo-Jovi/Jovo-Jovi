@@ -12,5 +12,5 @@ RobotExpressive (humanoid.glb)
   https://github.com/mrdoob/three.js (examples/models/gltf/RobotExpressive)
   CC0 — Tomás Laulhé
 
-gearbox.glb / drone.glb
-  Scene-specific meshes authored for this page
+drone.glb
+  Scene-specific mesh authored for this page

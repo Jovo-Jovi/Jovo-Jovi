@@ -4,3 +4,4 @@ _tmp_models
 .env*
 assets/renders/originals/
 assets/loops/*-[0-9][0-9].png
+assets/loops/*-[0-9][0-9].jpg

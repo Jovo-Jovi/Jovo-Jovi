@@ -27,7 +27,7 @@
 <meta name="twitter:image" content="https://jovo-jovi.vercel.app/assets/portfolio-card.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="/assets/hdri/brown_photostudio_02_1k.hdr" as="fetch" crossorigin>
+<link rel="preload" href="/assets/hdri/brown_photostudio_02_512.hdr" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -159,7 +159,7 @@ body.reduced .bar{display:none}
 .simnote{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--dim);margin-top:26px}
 
 /* full-bleed key visual */
-.keyvis{margin-top:clamp(30px,5vw,56px);border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.keyvis{position:relative;margin-top:clamp(30px,5vw,56px);border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
 .keyvis svg,.keyvis img,.keyvis picture{width:100%;display:block}
 .keycap{font-size:14px;color:var(--mut);margin:16px 0 0;max-width:52ch}
 
@@ -181,6 +181,59 @@ body.reduced .bar{display:none}
 .mv{position:relative;background:var(--mvBg);border-bottom:1px solid var(--line);overflow:hidden}
 .mv svg,.mv img,.mv picture{width:100%;height:100%;display:block}
 .mv.r11{aspect-ratio:1/1}.mv.r32{aspect-ratio:3/2}.mv.r169{aspect-ratio:16/9}.mv.r219{aspect-ratio:21/9}
+
+/* system-band overlay — defaults from system-band-overlay.html, tuned after deploy */
+.fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
+  --x0:6%; --gap:18.4%; --w:13.5%; --y0:22%; --h:56%; --rail:50%; --dur:9s}
+
+.band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;
+  background:
+    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.11), transparent 62%),
+    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.08), transparent 65%),
+    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.09), transparent 60%);
+  animation:smokeA 30s ease-in-out infinite alternate}
+.band .smoke::after{content:"";position:absolute;inset:-20%;opacity:.20;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0.74 0 0 0 0 0.79 0 0 0 0 0.87 0 0 0 -1.15 0.60'/></filter><rect width='420' height='300' filter='url(%23s)'/></svg>");
+  background-size:62% 130%; animation:smokePan 52s linear infinite}
+@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}
+                  to{transform:translate3d(3%,-2%,0) scale(1.08)}}
+@keyframes smokePan{to{background-position:62% -130%}}
+
+.band .rail{position:absolute;left:var(--x0);top:var(--rail);height:2px;
+  width:calc(var(--gap) * 4 + var(--w));transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,rgba(192,138,62,.42) 12%,rgba(192,138,62,.42) 88%,transparent)}
+
+.band .slab{position:absolute;top:var(--y0);height:var(--h);width:var(--w);border-radius:7px;
+  border:1.5px solid rgba(192,138,62,.42);animation:slabFlare var(--dur) linear infinite}
+.band .s1{left:calc(var(--x0) + 0 * var(--gap)); animation-delay:-8.30s}
+.band .s2{left:calc(var(--x0) + 1 * var(--gap)); animation-delay:-6.40s}
+.band .s3{left:calc(var(--x0) + 2 * var(--gap)); animation-delay:-4.50s}
+.band .s4{left:calc(var(--x0) + 3 * var(--gap));
+  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite;
+  animation-delay:-2.60s, 0s}
+.band .s5{left:calc(var(--x0) + 4 * var(--gap)); animation-delay:-0.70s}
+@keyframes slabFlare{
+  0%,88%,100%{border-color:rgba(192,138,62,.42);box-shadow:none}
+  93%{border-color:rgba(78,209,139,.95);
+      box-shadow:0 0 22px rgba(78,209,139,.30),inset 0 0 24px rgba(78,209,139,.14)}}
+@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.045)}
+                     50%{background:rgba(255,176,32,.14)}}
+
+.band .packet{position:absolute;top:var(--rail);left:var(--x0);width:11px;height:11px;border-radius:50%;
+  background:#4ED18B;box-shadow:0 0 14px 3px rgba(78,209,139,.55);
+  transform:translate(-50%,-50%);animation:packetRun var(--dur) linear infinite}
+.band .packet::before{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:52px;height:3px;border-radius:2px;
+  background:linear-gradient(270deg,rgba(78,209,139,.55),transparent)}
+@keyframes packetRun{
+  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  5%{opacity:1} 90%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(calc(var(--gap) * 4 + var(--w)));opacity:0}}
+
+body.reduced .band *,body.reduced .band *::after,body.reduced .band *::before{animation:none!important}
+@media (prefers-reduced-motion: reduce){
+  .band *,.band *::after,.band *::before{animation:none!important}}
+
 .card .txt{padding:clamp(18px,2.2vw,26px)}
 .card .st{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
   border:1px solid currentColor;border-radius:4px;padding:3px 7px;display:inline-block;margin-bottom:12px}
@@ -307,7 +360,7 @@ button.send:hover{transform:translateY(-2px)}
 .card.in .nudge,.keyvis .nudge{animation:nudge 1.7s ease-in-out infinite}
 .card.in .blip,.keyvis .blip{animation:blip 2.1s ease-in-out infinite}
 .card.in .glowrow{animation:sheen 2.6s ease-in-out infinite}
-.keyvis .packet{animation:travel 5.4s cubic-bezier(.45,0,.55,1) infinite}
+.keyvis svg .packet{animation:travel 5.4s cubic-bezier(.45,0,.55,1) infinite}
 body.reduced .card{opacity:1;transform:none}
 body.reduced .flowline,body.reduced .nudge,body.reduced .blip,
 body.reduced .packet,body.reduced .glowrow{animation:none!important}
@@ -459,6 +512,19 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
       <p class="lede reveal" data-reveal>I trained as a mechatronics engineer, where a system either works under real load or it does not. That standard came with me into software, and it is why I specify before I build.</p>
     </div>
 
+      <div class="wrap">
+        <figure class="keyvis" style="margin:0" data-fx="band">
+          <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
+          <i class="fx band" aria-hidden="true">
+            <span class="smoke"></span><span class="rail"></span>
+            <span class="slab s1"></span><span class="slab s2"></span><span class="slab s3"></span>
+            <span class="slab s4"></span><span class="slab s5"></span>
+            <span class="packet"></span>
+          </i>
+        </figure>
+        <p class="keycap">Nothing reaches the data without passing validation and a per-row permission check. That is the part of the design I spend the most time on.</p>
+      </div>
+
     <section class="sec tight">
       <div class="wrap">
         <p class="eyebrow">The five systems</p>
@@ -484,10 +550,6 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
         </div>
       </div>
     </section>
-
-    <div class="wrap">
-      <p class="keycap">Nothing reaches the data without passing validation and a per-row permission check. That is the part of the design I spend the most time on.</p>
-    </div>
   </section>
 
   <!-- three highlights -->

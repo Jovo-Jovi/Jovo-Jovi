@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern motion — pick one per card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080A;--surface:#0E1116;--line:rgba(255,255,255,.09);--txt:#E6EAEF;
+  --mut:#8C97A5;--dim:#5F6975;--bronze:#C08A3E;--bronze2:#D9A65C;--green:#4ED18B}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:34px clamp(16px,4vw,34px) 90px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze);margin:0}
+h1{font-size:clamp(23px,4.4vw,34px);font-weight:600;letter-spacing:-.03em;margin:12px 0 10px}
+.sub{margin:0;font-size:15px;line-height:1.7;color:var(--mut);max-width:70ch}
+.note{margin:18px 0 0;border-left:3px solid var(--bronze);background:var(--surface);padding:13px 15px;
+  font-size:13.5px;line-height:1.65;color:#B7C0CC;border-radius:0 7px 7px 0;max-width:74ch}
+.note b{color:var(--bronze2)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0 0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+button{font:inherit;font-size:12.5px;font-weight:500;background:var(--surface);color:var(--txt);
+  border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--bronze);color:#14100A;border-color:var(--bronze);font-weight:600}
+.grid{display:grid;gap:clamp(14px,1.8vw,22px);margin-top:24px;grid-template-columns:1fr}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1080px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mv{position:relative;aspect-ratio:3/2;overflow:hidden;background:#0B0F14}
+.mv img{width:100%;height:100%;object-fit:cover;display:block}
+.meta{padding:13px 15px 15px}
+.meta h2{font-size:15px;font-weight:600;margin:0}
+.meta code{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--bronze2);
+  background:#141920;border-radius:4px;padding:3px 7px;display:inline-block;margin-top:8px}
+.meta p{margin:9px 0 0;font-size:13px;line-height:1.6;color:var(--mut)}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;
+  overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.75;color:#C6CFDA;margin-top:26px}
+
+/* ============================================================
+   PATTERN MOTION — pure CSS, zero asset weight.
+   Uses a dedicated <i class="fx"> child so it never collides with
+   .mv::before / .mv::after, which index.html already uses for the
+   specular sweep and the haze drift.
+   ============================================================ */
+.mv .fx{position:absolute;inset:0;z-index:3;pointer-events:none;display:block}
+
+/* 1 · scan — a metrology probe crossing the part */
+[data-fx="scan"] .fx::before{content:"";position:absolute;left:0;right:0;height:2px;top:-2px;
+  background:linear-gradient(90deg,transparent,var(--bronze),transparent);
+  box-shadow:0 0 14px 2px rgba(192,138,62,.45);
+  animation:fxScan 7s cubic-bezier(.55,0,.45,1) infinite}
+@keyframes fxScan{0%{top:-2px;opacity:0}7%{opacity:1}68%{opacity:1}78%,100%{top:100%;opacity:0}}
+
+/* 2 · reticle — corner brackets breathing, like a measuring frame */
+[data-fx="reticle"] .fx::before{content:"";position:absolute;inset:14px;
+  background:
+    linear-gradient(var(--bronze),var(--bronze)) 0 0/16px 1.5px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 0 0/1.5px 16px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 100% 0/16px 1.5px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 100% 0/1.5px 16px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 0 100%/16px 1.5px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 0 100%/1.5px 16px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 100% 100%/16px 1.5px no-repeat,
+    linear-gradient(var(--bronze),var(--bronze)) 100% 100%/1.5px 16px no-repeat;
+  animation:fxReticle 4.6s ease-in-out infinite}
+@keyframes fxReticle{0%,100%{inset:14px;opacity:.4}50%{inset:9px;opacity:1}}
+
+/* 3 · grid — engraved reference grid drifting one cell */
+[data-fx="grid"] .fx::before{content:"";position:absolute;inset:0;opacity:.55;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(192,138,62,.16) 0 1px,transparent 1px 34px),
+    repeating-linear-gradient(90deg,rgba(192,138,62,.16) 0 1px,transparent 1px 34px);
+  animation:fxGrid 20s linear infinite}
+@keyframes fxGrid{to{background-position:34px 34px,34px 34px}}
+
+/* 4 · rail — a packet running the perimeter */
+[data-fx="rail"] .fx::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 11px 2px rgba(78,209,139,.55);top:0;left:0}
+@supports (offset-path: inset(1px)){
+  [data-fx="rail"] .fx::before{offset-path:inset(7px round 10px);offset-distance:0%;
+    top:auto;left:auto;animation:fxRail 9s linear infinite}
+  @keyframes fxRail{to{offset-distance:100%}}
+}
+
+/* 5 · hatch — section hatching drifting across the plate */
+[data-fx="hatch"] .fx::before{content:"";position:absolute;inset:0;opacity:.4;
+  background:repeating-linear-gradient(58deg,rgba(230,234,239,.075) 0 1px,transparent 1px 9px);
+  animation:fxHatch 13s linear infinite}
+@keyframes fxHatch{to{background-position:0 106px}}
+
+/* 6 · edge — the frame itself breathing */
+[data-fx="edge"] .fx::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  animation:fxEdge 5.2s ease-in-out infinite}
+@keyframes fxEdge{0%,100%{box-shadow:inset 0 0 0 1px rgba(192,138,62,.16)}
+  50%{box-shadow:inset 0 0 0 1px rgba(192,138,62,.62),inset 0 0 26px rgba(192,138,62,.10)}}
+
+body.rm .fx::before,body.rm .fx::after{animation:none!important}
+@media (prefers-reduced-motion: reduce){.fx::before,.fx::after{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Goal B · card panel pattern motion</p>
+  <h1>Six patterns. Pick one per card.</h1>
+  <p class="sub">Pure CSS. No images, no SVG, no JavaScript, nothing to generate — the entire system is about 2.5 KB of stylesheet for all seven cards combined. Every pattern reads as instrumentation rather than decoration, which is the register your page is already in.</p>
+
+  <div class="note">
+    <b>Why this needed no assets.</b> I had been treating "pattern motion" as feature-aligned technical overlays — a packet on the rail drawn in <em>that</em> render, a pulse on the verification dot in <em>that</em> one. That needs the artwork and it needs seven bespoke SVGs. A repeating pattern over the image needs neither. It works on any render, including ones you haven't made yet.
+  </div>
+
+  <div class="bar">
+    <button id="rm" aria-pressed="false">Reduced motion</button>
+    <button id="all" aria-pressed="false">Show all at once</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <pre id="css">/* copy block appears here */</pre>
+</div>
+
+<script>
+const P=[
+ ['scan','Scan','A metrology probe crossing the part. Strongest single choice — it reads as measurement, and the long pause between passes keeps it calm.'],
+ ['reticle','Reticle','Corner brackets breathing, like a measuring frame closing on the subject. Quietest of the six.'],
+ ['grid','Grid','An engraved reference grid drifting exactly one cell, so it loops invisibly. Pairs well with the architecture panels.'],
+ ['rail','Rail','A green packet running the perimeter. Use only on the backend and RLS cards, where a travelling request means something.'],
+ ['hatch','Hatch','Section hatching drifting across the plate. Subtle enough to sit under any other pattern.'],
+ ['edge','Edge','The frame itself breathing. The least intrusive — good for cards where the render is already busy.']
+];
+const grid=document.getElementById('grid');
+P.forEach(([id,label,note])=>{
+  const el=document.createElement('article'); el.className='card';
+  el.innerHTML=`<div class="mv" data-fx="${id}">
+      <img src="/assets/portfolio-card.webp" alt="sample render">
+      <i class="fx" aria-hidden="true"></i>
+    </div>
+    <div class="meta"><h2>${label}</h2><code>data-fx="${id}"</code><p>${note}</p></div>`;
+  grid.appendChild(el);
+});
+document.getElementById('rm').onclick=e=>{
+  const on=!document.body.classList.contains('rm');
+  document.body.classList.toggle('rm',on); e.target.setAttribute('aria-pressed',on);
+};
+document.getElementById('all').onclick=e=>{
+  const on=e.target.getAttribute('aria-pressed')!=='true';
+  e.target.setAttribute('aria-pressed',on);
+  document.querySelectorAll('.mv').forEach((m,i)=>{
+    m.dataset.fx = on ? P[i%P.length][0] : P[i][0];
+  });
+};
+document.getElementById('css').textContent =
+`/* --- paste into index.html, then add data-fx + <i class="fx"> per card --- */
+
+<div class="mv r11" data-fx="scan">
+  <img src="/assets/renders/betk.webp" alt="..." loading="lazy" decoding="async">
+  <i class="fx" aria-hidden="true"></i>
+</div>
+
+/* suggested assignment */
+betk        data-fx="scan"      the storefront being verified
+b2s         data-fx="grid"      tenants on a shared frame
+rls         data-fx="rail"      a request walking the boundary
+bilingual   data-fx="reticle"   two frames measured against each other
+tracking    data-fx="scan"      records being read
+reviewer    data-fx="rail"      work moving down the line
+system-band data-fx="rail"      the request path, literally
+
+/* the full stylesheet is in the <style> block of this file,
+   from the PATTERN MOTION comment to the reduced-motion rules */`;
+</script>
+</body>
+</html>

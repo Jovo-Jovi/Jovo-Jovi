@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System band overlay — calibrate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080A;--surface:#0E1116;--line:rgba(255,255,255,.09);--txt:#E6EAEF;
+  --mut:#8C97A5;--dim:#5F6975;--bronze:#C08A3E;--bronze2:#D9A65C;--green:#4ED18B;--amber:#FFB020}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1300px;margin:0 auto;padding:32px clamp(16px,4vw,34px) 90px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze);margin:0}
+h1{font-size:clamp(23px,4.4vw,34px);font-weight:600;letter-spacing:-.03em;margin:12px 0 10px}
+.sub{margin:0;font-size:15px;line-height:1.7;color:var(--mut);max-width:70ch}
+.note{margin:16px 0 0;border-left:3px solid var(--bronze);background:var(--surface);padding:13px 15px;
+  font-size:13.5px;line-height:1.65;color:#B7C0CC;border-radius:0 7px 7px 0;max-width:74ch}
+.note b{color:var(--bronze2)}
+
+.stage-wrap{margin-top:24px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0B0F14}
+.mv{position:relative;aspect-ratio:21/9;overflow:hidden}
+.mv img{width:100%;height:100%;object-fit:cover;display:block}
+.drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);text-align:center;padding:24px;line-height:1.9}
+.drop b{color:var(--bronze2)}
+input[type=file]{font:inherit;font-size:12px;color:var(--mut)}
+
+.panel{display:grid;gap:14px;margin-top:22px;grid-template-columns:1fr}
+@media(min-width:760px){.panel{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.panel{grid-template-columns:repeat(4,1fr)}}
+.ctl{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.ctl label{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.ctl b{color:var(--bronze2);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--bronze)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+button{font:inherit;font-size:12.5px;font-weight:500;background:var(--surface);color:var(--txt);
+  border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--bronze);color:#14100A;border-color:var(--bronze);font-weight:600}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;overflow:auto;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.75;color:#C6CFDA;margin-top:22px;max-height:420px}
+
+/* ================= THE OVERLAY =================
+   Percentage-based, so it scales with the image at any size.
+   Lives in its own <i class="fx"> so it never collides with
+   .mv::before / .mv::after already used by index.html.        */
+.fx{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
+  --x0:6%; --gap:18.4%; --w:13.5%; --y0:22%; --h:56%; --rail:50%; --dur:9s}
+
+/* smoke — two drifting gradient layers plus a turbulence wisp, transform-only so it stays cheap */
+.fx .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;
+  background:
+    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.11), transparent 62%),
+    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.08), transparent 65%),
+    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.09), transparent 60%);
+  animation:smokeA 30s ease-in-out infinite alternate}
+.fx .smoke::after{content:"";position:absolute;inset:-20%;opacity:.20;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0.74 0 0 0 0 0.79 0 0 0 0 0.87 0 0 0 -1.15 0.60'/></filter><rect width='420' height='300' filter='url(%23s)'/></svg>");
+  background-size:62% 130%;
+  animation:smokePan 52s linear infinite}
+@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}
+                  to{transform:translate3d(3%,-2%,0) scale(1.08)}}
+@keyframes smokePan{to{background-position:62% -130%}}
+
+/* rail */
+.fx .rail{position:absolute;left:var(--x0);top:var(--rail);height:2px;
+  width:calc(var(--gap) * 4 + var(--w));
+  background:linear-gradient(90deg,transparent,rgba(192,138,62,.42) 12%,rgba(192,138,62,.42) 88%,transparent);
+  transform:translateY(-50%)}
+
+/* five illuminated frames */
+.fx .slab{position:absolute;top:var(--y0);height:var(--h);width:var(--w);border-radius:7px;
+  border:1.5px solid rgba(192,138,62,.42);
+  animation:slabFlare var(--dur) linear infinite}
+.fx .s1{left:calc(var(--x0) + 0 * var(--gap))}
+.fx .s2{left:calc(var(--x0) + 1 * var(--gap))}
+.fx .s3{left:calc(var(--x0) + 2 * var(--gap))}
+.fx .s4{left:calc(var(--x0) + 3 * var(--gap))}
+.fx .s5{left:calc(var(--x0) + 4 * var(--gap))}
+@keyframes slabFlare{
+  0%,88%,100%{border-color:rgba(192,138,62,.42);box-shadow:none}
+  93%{border-color:rgba(78,209,139,.95);box-shadow:0 0 22px rgba(78,209,139,.30),inset 0 0 24px rgba(78,209,139,.14)}}
+
+/* slab 4 is the permission gate — it holds an amber pulse of its own */
+.fx .s4{animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite}
+@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.045)}
+                     50%{background:rgba(255,176,32,.14)}}
+
+/* the packet, with a trail */
+.fx .packet{position:absolute;top:var(--rail);left:var(--x0);width:11px;height:11px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 14px 3px rgba(78,209,139,.55);
+  transform:translate(-50%,-50%);
+  animation:packetRun var(--dur) linear infinite}
+.fx .packet::before{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:52px;height:3px;border-radius:2px;
+  background:linear-gradient(270deg,rgba(78,209,139,.55),transparent)}
+@keyframes packetRun{
+  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  5%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(calc(var(--gap) * 4 + var(--w)));opacity:0}}
+
+body.rm .fx *,body.rm .fx *::after,body.rm .fx *::before{animation:none!important}
+@media (prefers-reduced-motion: reduce){.fx *,.fx *::after,.fx *::before{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Goal B · system band</p>
+  <h1>Illuminated frames + packet + smoke, over your render</h1>
+  <p class="sub">Everything is percentage-based, so it scales with the image and never needs a viewBox to match. Drag the sliders until the five frames sit on the five slabs in your render, then copy the block at the bottom.</p>
+
+  <div class="note">
+    <b>Calibrate once, not by correspondence.</b> I haven't seen <code>system-band.webp</code>, and guessing coordinates then trading corrections is exactly the loop we just got out of. Five sliders, thirty seconds, done — and the output has your values baked in.
+  </div>
+
+  <div class="stage-wrap">
+    <div class="mv" id="mv">
+      <img id="img" src="/assets/renders/system-band.webp" alt="system band render">
+      <div class="drop" id="drop" hidden>
+        <span>couldn't load <b>/assets/renders/system-band.webp</b></span>
+        <span>load it from disk instead:</span>
+        <input type="file" id="file" accept="image/*">
+      </div>
+      <i class="fx" id="fx" aria-hidden="true">
+        <span class="smoke"></span>
+        <span class="rail"></span>
+        <span class="slab s1"></span><span class="slab s2"></span><span class="slab s3"></span>
+        <span class="slab s4"></span><span class="slab s5"></span>
+        <span class="packet"></span>
+      </i>
+    </div>
+  </div>
+
+  <div class="panel" id="panel"></div>
+
+  <div class="bar">
+    <button id="rm" aria-pressed="false">Reduced motion</button>
+    <button id="smoke" aria-pressed="true">Smoke</button>
+    <button id="frames" aria-pressed="true">Frames</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <pre id="out"></pre>
+</div>
+
+<script>
+const V={x0:6, gap:18.4, w:13.5, y0:22, h:56, rail:50, dur:9};
+const DEF={...V};
+const SPEC=[
+ ['x0','first slab left','%',0,40,0.1],
+ ['gap','spacing between slabs','%',8,26,0.1],
+ ['w','slab width','%',5,26,0.1],
+ ['y0','slab top','%',0,45,0.1],
+ ['h','slab height','%',20,95,0.1],
+ ['rail','rail height','%',10,90,0.1],
+ ['dur','packet loop','s',4,18,0.5]
+];
+const fx=document.getElementById('fx'), panel=document.getElementById('panel'), out=document.getElementById('out');
+
+SPEC.forEach(([k,label,unit,min,max,step])=>{
+  const d=document.createElement('div'); d.className='ctl';
+  d.innerHTML=`<label for="r_${k}">${label}<b id="v_${k}">${V[k]}${unit}</b></label>
+    <input type="range" id="r_${k}" min="${min}" max="${max}" step="${step}" value="${V[k]}">`;
+  panel.appendChild(d);
+  d.querySelector('input').addEventListener('input',e=>{
+    V[k]=parseFloat(e.target.value);
+    document.getElementById('v_'+k).textContent=V[k]+unit;
+    apply();
+  });
+});
+
+function apply(){
+  fx.style.setProperty('--x0',V.x0+'%');
+  fx.style.setProperty('--gap',V.gap+'%');
+  fx.style.setProperty('--w',V.w+'%');
+  fx.style.setProperty('--y0',V.y0+'%');
+  fx.style.setProperty('--h',V.h+'%');
+  fx.style.setProperty('--rail',V.rail+'%');
+  fx.style.setProperty('--dur',V.dur+'s');
+  /* each frame flares as the packet reaches its centre — delay is that fraction of the run */
+  const span=V.gap*4+V.w, delays=[];
+  for(let i=0;i<5;i++){
+    const centre=i*V.gap+V.w/2;
+    delays.push(-(V.dur*(1-Math.min(1,centre/span))).toFixed(2));
+  }
+  [...fx.querySelectorAll('.slab')].forEach((s,i)=>{
+    s.style.animationDelay = i===3 ? `${delays[i]}s, 0s` : `${delays[i]}s`;
+  });
+  write(delays);
+}
+
+function write(delays){
+out.textContent =
+`<!-- ===== index.html: replace the system-band figure ===== -->
+<div class="mv r219" data-fx="band">
+  <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
+  <i class="fx band" aria-hidden="true">
+    <span class="smoke"></span><span class="rail"></span>
+    <span class="slab s1"></span><span class="slab s2"></span><span class="slab s3"></span>
+    <span class="slab s4"></span><span class="slab s5"></span>
+    <span class="packet"></span>
+  </i>
+</div>
+
+/* ===== index.html: add near the .mv rules ===== */
+.fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
+  --x0:${V.x0}%; --gap:${V.gap}%; --w:${V.w}%; --y0:${V.y0}%; --h:${V.h}%; --rail:${V.rail}%; --dur:${V.dur}s}
+
+.band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;
+  background:
+    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.11), transparent 62%),
+    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.08), transparent 65%),
+    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.09), transparent 60%);
+  animation:smokeA 30s ease-in-out infinite alternate}
+.band .smoke::after{content:"";position:absolute;inset:-20%;opacity:.20;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0.74 0 0 0 0 0.79 0 0 0 0 0.87 0 0 0 -1.15 0.60'/></filter><rect width='420' height='300' filter='url(%23s)'/></svg>");
+  background-size:62% 130%; animation:smokePan 52s linear infinite}
+@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}
+                  to{transform:translate3d(3%,-2%,0) scale(1.08)}}
+@keyframes smokePan{to{background-position:62% -130%}}
+
+.band .rail{position:absolute;left:var(--x0);top:var(--rail);height:2px;
+  width:calc(var(--gap) * 4 + var(--w));transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,rgba(192,138,62,.42) 12%,rgba(192,138,62,.42) 88%,transparent)}
+
+.band .slab{position:absolute;top:var(--y0);height:var(--h);width:var(--w);border-radius:7px;
+  border:1.5px solid rgba(192,138,62,.42);animation:slabFlare var(--dur) linear infinite}
+.band .s1{left:calc(var(--x0) + 0 * var(--gap)); animation-delay:${delays[0]}s}
+.band .s2{left:calc(var(--x0) + 1 * var(--gap)); animation-delay:${delays[1]}s}
+.band .s3{left:calc(var(--x0) + 2 * var(--gap)); animation-delay:${delays[2]}s}
+.band .s4{left:calc(var(--x0) + 3 * var(--gap));
+  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite;
+  animation-delay:${delays[3]}s, 0s}
+.band .s5{left:calc(var(--x0) + 4 * var(--gap)); animation-delay:${delays[4]}s}
+@keyframes slabFlare{
+  0%,88%,100%{border-color:rgba(192,138,62,.42);box-shadow:none}
+  93%{border-color:rgba(78,209,139,.95);
+      box-shadow:0 0 22px rgba(78,209,139,.30),inset 0 0 24px rgba(78,209,139,.14)}}
+@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.045)}
+                     50%{background:rgba(255,176,32,.14)}}
+
+.band .packet{position:absolute;top:var(--rail);left:var(--x0);width:11px;height:11px;border-radius:50%;
+  background:#4ED18B;box-shadow:0 0 14px 3px rgba(78,209,139,.55);
+  transform:translate(-50%,-50%);animation:packetRun var(--dur) linear infinite}
+.band .packet::before{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:52px;height:3px;border-radius:2px;
+  background:linear-gradient(270deg,rgba(78,209,139,.55),transparent)}
+@keyframes packetRun{
+  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  5%{opacity:1} 90%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(calc(var(--gap) * 4 + var(--w)));opacity:0}}
+
+body.reduced .band *,body.reduced .band *::after,body.reduced .band *::before{animation:none!important}
+@media (prefers-reduced-motion: reduce){
+  .band *,.band *::after,.band *::before{animation:none!important}}`;
+}
+
+/* image fallback */
+const img=document.getElementById('img'), drop=document.getElementById('drop');
+img.onerror=()=>{drop.hidden=false;img.style.opacity=0};
+document.getElementById('file').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  img.src=URL.createObjectURL(f); img.style.opacity=1; drop.hidden=true;
+};
+document.getElementById('rm').onclick=e=>{const on=!document.body.classList.contains('rm');
+  document.body.classList.toggle('rm',on); e.target.setAttribute('aria-pressed',on);};
+document.getElementById('smoke').onclick=e=>{const on=e.target.getAttribute('aria-pressed')!=='true';
+  e.target.setAttribute('aria-pressed',on); fx.querySelector('.smoke').style.display=on?'':'none';};
+document.getElementById('frames').onclick=e=>{const on=e.target.getAttribute('aria-pressed')!=='true';
+  e.target.setAttribute('aria-pressed',on);
+  fx.querySelectorAll('.slab').forEach(s=>s.style.display=on?'':'none');};
+document.getElementById('reset').onclick=()=>{
+  Object.assign(V,DEF);
+  SPEC.forEach(([k,,unit])=>{document.getElementById('r_'+k).value=V[k];
+    document.getElementById('v_'+k).textContent=V[k]+unit;});
+  apply();
+};
+apply();
+</script>
+</body>
+</html>

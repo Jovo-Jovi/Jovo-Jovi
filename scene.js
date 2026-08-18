@@ -861,7 +861,7 @@ function frame(now){
   requestAnimationFrame(frame);
   requestAnimationFrame(() => {
     buildLaterActs();
-    new RGBELoader().load('/assets/hdri/brown_photostudio_02_1k.hdr', (tex) => {
+    new RGBELoader().load('/assets/hdri/brown_photostudio_02_512.hdr', (tex) => {
       const env=pmrem.fromEquirectangular(tex).texture;
       tex.dispose();
       scene.environment=env;
