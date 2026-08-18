@@ -9,7 +9,7 @@ Companion files: `render-prompts.md` (the flat page images) · `loop-test.html` 
 
 ## 1. What you're building
 
-Five components, each isolated, each at the exact quality of `portfolio-card.png`, each with a
+Five components, each isolated, each at the exact quality of `portfolio-card.webp`, each with a
 seamless repeating loop. Separate files so you can accept or reject them one at a time.
 
 | # | Component | Frames | Loop principle | Difficulty |
@@ -49,7 +49,7 @@ prompt below therefore bans them.
 
 ## 3. STYLE BLOCK — paste verbatim into every generation
 
-Attach `portfolio-card.png` as a reference image every single time. It holds the look far
+Attach `portfolio-card.webp` as a reference image every single time. It holds the look far
 better than words do.
 
 ```
@@ -268,7 +268,7 @@ Your report changed the plan, correctly. Recording what actually happened and wh
 Regenerating every frame as a fresh image **failed the lock immediately** — sphere counts and
 cameras drifted. That is the expected result and it is why the LOCK clause exists as a test
 rather than a guarantee. Your fix was the right one: take **one locked still** from
-`portfolio-card.png`, then build the loop *on top of that still* so the geometry can never drift.
+`portfolio-card.webp`, then build the loop *on top of that still* so the geometry can never drift.
 
 That inverts the guidance in section 4. Treat those prompts as a fallback, not the first choice.
 

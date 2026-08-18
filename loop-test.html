@@ -137,8 +137,10 @@ const GROUPS=[
  ]}
 ];
 
-const LOOP_TRY  = id=>[id+'-loop.webp', id+'.webp', id+'-loop.gif'];
-const STILL_TRY = id=>[id+'-still.png', id+'-still.webp', id+'.png', id+'-01.png'];
+/* A bare <id>.webp is a STILL, not a loop. Classifying it as a loop skipped the CSS
+   drift on every card render, because kenburns only targets img.still. */
+const LOOP_TRY  = id=>[id+'-loop.webp', id+'-loop.gif'];
+const STILL_TRY = id=>[id+'-still.webp', id+'-still.png', id+'.webp', id+'.png', id+'-01.png'];
 
 let mode='loop', fps=12, playing=true;
 const cards=[];

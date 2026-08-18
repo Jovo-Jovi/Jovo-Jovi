@@ -1,9 +1,9 @@
 # Render prompt pack — Jiovanny Adel portfolio
 
-Every prompt below is built to match `portfolio-card.png` exactly. The palette hexes were
+Every prompt below is built to match `portfolio-card.webp` exactly. The palette hexes were
 sampled from that file, not guessed.
 
-**Before anything else:** attach `portfolio-card.png` to the Cursor chat as a reference image
+**Before anything else:** attach `portfolio-card.webp` to the Cursor chat as a reference image
 on every generation and say *"match this exact lighting, palette and material treatment."*
 A reference image holds style far better than any wording. Generate the whole set in one
 session — models drift between sessions.
