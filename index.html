@@ -184,7 +184,7 @@ body.reduced .bar{display:none}
 
 /* system-band overlay — click-snapped positions from system-band-generated.css.txt */
 .fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
-  --dur:9s; --run:90.19%; --pw:3.4%}
+  --dur:4s; --run:90.19%; --pw:3.4%}
 
 .band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;pointer-events:none;
   background:
@@ -199,32 +199,17 @@ body.reduced .bar{display:none}
 @keyframes smokePan{to{background-position:62% -130%}}
 
 .band .rail{position:absolute;height:3px;transform:translateY(-50%);pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(192,138,62,.55) 10%,rgba(192,138,62,.55) 90%,transparent);
-  box-shadow:0 0 14px rgba(192,138,62,.30)}
+  opacity:0}
 
-.band .slab{position:absolute;border-radius:8px;
-  border:3px solid rgba(192,138,62,.82);
-  box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07);
-  animation:slabFlare var(--dur) linear infinite;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  padding:10px 8px;text-align:center}
-.band .slab.gate{border-width:4px;border-color:rgba(255,176,32,.88);
-  box-shadow:0 0 0 1px rgba(255,176,32,.22),0 0 26px rgba(255,176,32,.26),inset 0 0 30px rgba(255,176,32,.09);
-  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite}
+.band .slab{position:absolute;border-radius:8px;border:3px solid transparent;box-shadow:none;
+  animation:slabFlare var(--dur) linear infinite}
+.band .slab.gate{border-width:4px;animation:slabFlare var(--dur) linear infinite}
 @keyframes slabFlare{
-  0%,86%,100%{border-color:rgba(192,138,62,.82);
-    box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07)}
-  92%{border-color:#7BFFC0;
-    box-shadow:0 0 0 1px rgba(78,209,139,.55),0 0 36px rgba(78,209,139,.55),
-               0 0 74px rgba(78,209,139,.26),inset 0 0 44px rgba(78,209,139,.20)}}
-@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.05)}50%{background:rgba(255,176,32,.15)}}
+  0%,86%,100%{box-shadow:none}
+  92%{box-shadow:0 0 28px rgba(78,209,139,.50),0 0 64px rgba(78,209,139,.28),
+               inset 0 0 40px rgba(78,209,139,.16)}}
 
-.band .slab .ttl{font-size:clamp(11px,1.15vw,17px);font-weight:600;letter-spacing:-.02em;
-  color:#EFF3F8;text-shadow:0 2px 12px rgba(0,0,0,.9);line-height:1.15}
-.band .slab .sub{font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.72vw,10px);
-  letter-spacing:.06em;color:#A6B2C0;text-shadow:0 1px 10px rgba(0,0,0,.95);line-height:1.4}
-.band .slab .num{position:absolute;bottom:8px;font-family:'IBM Plex Mono',monospace;
-  font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
+.band .slab .ttl,.band .slab .sub,.band .slab .num{display:none}
 .band .slab.gate .ttl{color:var(--amber)}
 .band.no-text .ttl,.band.no-text .sub,.band.no-text .num{display:none}
 .band .bcap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
@@ -243,13 +228,11 @@ body.reduced .bar{display:none}
 .band .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
   width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
 
-.band .s1{left:8.61%;top:9.71%;width:10.42%;height:75.08%;animation-delay:-7.41s}
-.band .s2{left:27.78%;top:11.33%;width:10.69%;height:73.46%;animation-delay:-5.48s}
-.band .s3{left:45.97%;top:13.59%;width:10.69%;height:71.2%;animation-delay:-3.67s}
-.band .s4{left:64.17%;top:14.24%;width:10.56%;height:70.55%;
-  animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
-  animation-delay:-1.86s,0s}
-.band .s5{left:82.22%;top:14.24%;width:9.58%;height:70.87%;animation-delay:-0.11s}
+.band .s1{left:8.61%;top:9.71%;width:10.42%;height:75.08%;animation-delay:-3.29s}
+.band .s2{left:27.78%;top:11.33%;width:10.69%;height:73.46%;animation-delay:-2.44s}
+.band .s3{left:45.97%;top:13.59%;width:10.69%;height:71.2%;animation-delay:-1.63s}
+.band .s4{left:64.17%;top:14.24%;width:10.56%;height:70.55%;animation-delay:-0.83s}
+.band .s5{left:82.22%;top:14.24%;width:9.58%;height:70.87%;animation-delay:-0.05s}
 .band .rail{left:5.11%;width:90.19%;top:49.2%}
 .band .packet{left:5.11%;top:49.2%}
 
