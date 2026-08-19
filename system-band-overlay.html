@@ -115,12 +115,13 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
   <p class="sub">The frames are found by reading the image, not by guessing. Press Detect. Drag only if a frame needs a nudge afterwards.</p>
 
   <div class="note">
-    <b>How it finds them.</b> The image goes to a canvas, and every column's mean luminance across the middle band becomes a profile. The five slabs are the five brightest plateaus in that profile — the graph under the image is that data, with the detected bands marked. For each band it then runs a row profile to find the top and bottom edges. If the render has five brighter-than-background verticals, it will find them.<br><br>
-    <b>If Detect fails</b>, raise or lower Sensitivity and press it again. The profile graph shows you what it's seeing, so you can tell whether the threshold is cutting through the slabs or through the background.
+    <b>Click mode is the one that works.</b> Press it, then click the centre of each slab left to right. Each click snaps to the strongest edge either side of it, and to the top and bottom of that column. Five clicks, pixel-accurate, and it cannot mis-pair.<br><br>
+    <b>Auto detect</b> looks for the ten frame edges and pairs them into five slabs. It reports a gap ratio and width ratio, and tells you when the pairing is implausible instead of handing you a wrong answer. The graph is the edge profile — green marks are detected edges.
   </div>
 
   <div class="bar">
-    <button class="go" id="detect">Detect frames</button>
+    <button class="go" id="detect">Auto detect</button>
+    <button class="go" id="click">Click mode</button>
     <label class="rng">Sensitivity <input type="range" id="sens" min="15" max="70" step="1" value="35"><span id="sensv">35</span></label>
     <button id="lock" aria-pressed="false">Lock</button>
     <button id="text" aria-pressed="true">Labels</button>
@@ -174,109 +175,170 @@ SL.forEach(s=>{
   fx.appendChild(el); s.el=el;
 });
 
-/* ---------------- detection ---------------- */
+/* ---------------- detection ----------------
+   A glass slab is DARK in the middle with a BRIGHT frame, so each slab puts
+   TWO spikes in the column profile, not one plateau. Detect edges, pair them.
+   Click mode seeds from your click and snaps to the nearest edge pair — that
+   one cannot mis-pair, so it is the reliable route.                          */
+let PROF=null, CW=0, CH=0, clickMode=false, clickIdx=0;
+
 function smooth(a,r){
   const o=new Float64Array(a.length);
-  for(let i=0;i<a.length;i++){
-    let s=0,n=0;
-    for(let k=-r;k<=r;k++){const j=i+k; if(j>=0&&j<a.length){s+=a[j];n++;}}
-    o[i]=s/n;
-  }
+  for(let i=0;i<a.length;i++){let s=0,n=0;
+    for(let k=-r;k<=r;k++){const j=i+k;if(j>=0&&j<a.length){s+=a[j];n++;}}
+    o[i]=s/n;}
   return o;
 }
-function detect(){
-  if(!img.naturalWidth){status.textContent='image not loaded';status.className='status no';return;}
-  const W=720, H=Math.round(W*img.naturalHeight/img.naturalWidth);
-  const c=document.createElement('canvas'); c.width=W; c.height=H;
+function buildProfile(){
+  if(!img.naturalWidth) return null;
+  CW=720; CH=Math.round(CW*img.naturalHeight/img.naturalWidth);
+  const c=document.createElement('canvas'); c.width=CW; c.height=CH;
   const g=c.getContext('2d',{willReadFrequently:true});
   let px;
-  try{ g.drawImage(img,0,0,W,H); px=g.getImageData(0,0,W,H).data; }
-  catch(e){ status.textContent='canvas blocked (CORS) — load from disk'; status.className='status no'; return; }
-
-  const ya=Math.round(H*0.22), yb=Math.round(H*0.78);
-  const col=new Float64Array(W);
-  for(let x=0;x<W;x++){
+  try{ g.drawImage(img,0,0,CW,CH); px=g.getImageData(0,0,CW,CH).data; }
+  catch(e){ status.textContent='canvas blocked (CORS) — load from disk';
+            status.className='status no'; return null; }
+  const ya=Math.round(CH*0.25), yb=Math.round(CH*0.75);
+  const lum=new Float64Array(CW);
+  for(let x=0;x<CW;x++){
     let s=0;
-    for(let y=ya;y<yb;y++){const i=(y*W+x)*4; s+=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2];}
-    col[x]=s/(yb-ya);
+    for(let y=ya;y<yb;y++){const i=(y*CW+x)*4; s+=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2];}
+    lum[x]=s/(yb-ya);
   }
-  const sm=smooth(col,Math.max(2,Math.round(W/180)));
-  const srt=[...sm].sort((a,b)=>a-b);
-  const base=srt[Math.floor(srt.length*0.25)], peak=srt[Math.floor(srt.length*0.97)];
+  const sm=smooth(lum,3);
+  const gr=new Float64Array(CW);
+  for(let x=1;x<CW-1;x++) gr[x]=Math.abs(sm[x+1]-sm[x-1]);
+  PROF={lum:sm, grad:smooth(gr,2), px};
+  return PROF;
+}
+/* vertical extent inside a column band */
+function vertical(x0,x1){
+  const {px}=PROF;
+  const row=new Float64Array(CH);
+  for(let y=0;y<CH;y++){
+    let s=0;
+    for(let x=x0;x<=x1;x++){const t=(y*CW+x)*4; s+=0.299*px[t]+0.587*px[t+1]+0.114*px[t+2];}
+    row[y]=s/(x1-x0+1);
+  }
+  const rs=smooth(row,Math.max(2,Math.round(CH/60)));
+  const sr=[...rs].sort((a,b)=>a-b);
+  const rb=sr[(sr.length*0.2)|0], rp=sr[(sr.length*0.95)|0];
+  const rt=rb+(rp-rb)*0.34;
+  let ta=0,tb=CH-1;
+  for(let y=0;y<CH;y++) if(rs[y]>=rt){ta=y;break;}
+  for(let y=CH-1;y>=0;y--) if(rs[y]>=rt){tb=y;break;}
+  return [ta,tb];
+}
+/* snap a slab around a seed x, by finding the strongest edge each way */
+function snapAt(seed){
+  const {grad}=PROF;
+  const win=Math.round(CW*0.085);
+  let L=seed,bl=0,R=seed,br=0;
+  for(let x=seed;x>Math.max(1,seed-win);x--) if(grad[x]>bl){bl=grad[x];L=x;}
+  for(let x=seed;x<Math.min(CW-1,seed+win);x++) if(grad[x]>br){br=grad[x];R=x;}
+  if(R-L < CW*0.015) return null;
+  const [ta,tb]=vertical(L,R);
+  return {x:+((L/CW)*100).toFixed(2), w:+(((R-L)/CW)*100).toFixed(2),
+          y:+((ta/CH)*100).toFixed(2), h:+(((tb-ta)/CH)*100).toFixed(2)};
+}
+function plausible(){
+  const c=SL.map(s=>s.x+s.w/2), w=SL.map(s=>s.w);
+  const gaps=[]; for(let i=1;i<5;i++) gaps.push(c[i]-c[i-1]);
+  const gr=Math.max(...gaps)/Math.min(...gaps), wr=Math.max(...w)/Math.min(...w);
+  return {ok: gr<1.8 && wr<2.0 && (c[4]-c[0])>45, gr, wr, span:c[4]-c[0]};
+}
+function detect(){
+  if(!buildProfile()) return;
+  const {grad}=PROF;
+  const srt=[...grad].sort((a,b)=>a-b);
   const k=+document.getElementById('sens').value/100;
-  const thr=base+(peak-base)*k;
-
-  let runs=[],st=-1;
-  for(let x=0;x<W;x++){
-    if(sm[x]>=thr){ if(st<0) st=x; } else if(st>=0){ runs.push([st,x-1]); st=-1; }
-  }
-  if(st>=0) runs.push([st,W-1]);
-  const minW=W*0.02;
-  runs=runs.filter(r=>r[1]-r[0]>=minW);
-  /* merge runs separated by a gap smaller than a third of the narrower one */
-  for(let i=runs.length-2;i>=0;i--){
-    const gap=runs[i+1][0]-runs[i][1];
-    if(gap < Math.min(runs[i][1]-runs[i][0], runs[i+1][1]-runs[i+1][0])/3){
-      runs[i]=[runs[i][0],runs[i+1][1]]; runs.splice(i+1,1);
+  const thr=srt[(srt.length*(1-k*0.5))|0];
+  /* local maxima above threshold, kept apart by a minimum spacing */
+  const peaks=[]; const minSep=Math.round(CW*0.012);
+  for(let x=2;x<CW-2;x++){
+    if(grad[x]<thr) continue;
+    if(grad[x]<grad[x-1]||grad[x]<grad[x+1]) continue;
+    if(peaks.length && x-peaks[peaks.length-1] < minSep){
+      if(grad[x]>grad[peaks[peaks.length-1]]) peaks[peaks.length-1]=x;
+      continue;
     }
+    peaks.push(x);
   }
-  drawProfile(sm,thr,base,peak,runs,W);
-
-  if(runs.length!==5){
-    status.textContent=`found ${runs.length} bands, need 5 — adjust sensitivity`;
+  drawProfile(peaks,thr);
+  if(peaks.length<10){
+    status.textContent=`only ${peaks.length} edges found, need 10 — lower Sensitivity or use Click mode`;
     status.className='status no'; return;
   }
-  runs.sort((a,b)=>a[0]-b[0]);
-  runs.forEach((r,i)=>{
-    const x0=r[0], x1=r[1];
-    /* row profile inside this band to find top and bottom */
-    const row=new Float64Array(H);
-    for(let y=0;y<H;y++){
-      let s=0;
-      for(let x=x0;x<=x1;x++){const t=(y*W+x)*4; s+=0.299*px[t]+0.587*px[t+1]+0.114*px[t+2];}
-      row[y]=s/(x1-x0+1);
-    }
-    const rs=smooth(row,Math.max(2,Math.round(H/60)));
-    const sr=[...rs].sort((a,b)=>a-b);
-    const rb=sr[Math.floor(sr.length*0.2)], rp=sr[Math.floor(sr.length*0.95)];
-    const rt=rb+(rp-rb)*0.32;
-    let ta=0,tb=H-1;
-    for(let y=0;y<H;y++){ if(rs[y]>=rt){ta=y;break;} }
-    for(let y=H-1;y>=0;y--){ if(rs[y]>=rt){tb=y;break;} }
-    const pad=(x1-x0)*0.02;
-    SL[i].x=+(((x0-pad)/W)*100).toFixed(2);
-    SL[i].w=+((((x1-x0)+pad*2)/W)*100).toFixed(2);
-    SL[i].y=+((ta/H)*100).toFixed(2);
-    SL[i].h=+(((tb-ta)/H)*100).toFixed(2);
-  });
-  detected=true;
+  /* keep the 10 strongest, then pair them left to right */
+  const top=[...peaks].sort((a,b)=>grad[b]-grad[a]).slice(0,10).sort((a,b)=>a-b);
+  for(let i=0;i<5;i++){
+    const L=top[i*2], R=top[i*2+1];
+    const [ta,tb]=vertical(L,R);
+    SL[i].x=+((L/CW)*100).toFixed(2); SL[i].w=+(((R-L)/CW)*100).toFixed(2);
+    SL[i].y=+((ta/CH)*100).toFixed(2); SL[i].h=+(((tb-ta)/CH)*100).toFixed(2);
+  }
+  const p=plausible();
+  if(!p.ok){
+    status.textContent=`edges paired badly (gap ratio ${p.gr.toFixed(1)}, width ratio ${p.wr.toFixed(1)}) — use Click mode`;
+    status.className='status no';
+  } else {
+    status.textContent='5 slabs paired from edges';
+    status.className='status ok';
+  }
   const mid=SL[2];
   RAIL=+(mid.y+mid.h/2).toFixed(1);
   document.getElementById('rail').value=RAIL;
   document.getElementById('railv').textContent=RAIL+'%';
-  status.textContent='5 bands locked on';
-  status.className='status ok';
   apply();
 }
-function drawProfile(sm,thr,base,peak,runs,W){
+function drawProfile(peaks,thr){
   const w=prof.clientWidth||900, h=64;
   prof.width=w; prof.height=h;
-  const g=prof.getContext('2d');
-  g.clearRect(0,0,w,h);
-  runs.forEach(r=>{
-    g.fillStyle='rgba(78,209,139,.16)';
-    g.fillRect(r[0]/W*w,0,(r[1]-r[0])/W*w,h);
+  const g=prof.getContext('2d'); g.clearRect(0,0,w,h);
+  const gr=PROF.grad, mx=Math.max(...gr)||1;
+  (peaks||[]).forEach(x=>{
+    g.fillStyle='rgba(78,209,139,.55)';
+    g.fillRect(x/CW*w-1,0,2,h);
   });
-  g.strokeStyle='rgba(255,176,32,.75)'; g.setLineDash([4,4]); g.beginPath();
-  const ty=h-((thr-base)/(peak-base||1))*(h-8)-4; g.moveTo(0,ty); g.lineTo(w,ty); g.stroke();
-  g.setLineDash([]);
-  g.strokeStyle='#C08A3E'; g.lineWidth=1.4; g.beginPath();
-  for(let i=0;i<W;i++){
-    const x=i/W*w, y=h-((sm[i]-base)/(peak-base||1))*(h-8)-4;
+  if(thr!=null){
+    g.strokeStyle='rgba(255,176,32,.7)'; g.setLineDash([4,4]); g.beginPath();
+    const ty=h-(thr/mx)*(h-8)-4; g.moveTo(0,ty); g.lineTo(w,ty); g.stroke(); g.setLineDash([]);
+  }
+  g.strokeStyle='#C08A3E'; g.lineWidth=1.3; g.beginPath();
+  for(let i=0;i<CW;i++){
+    const x=i/CW*w, y=h-(gr[i]/mx)*(h-8)-4;
     i?g.lineTo(x,y):g.moveTo(x,y);
   }
   g.stroke();
 }
+/* click mode */
+function startClick(){
+  if(!buildProfile()) return;
+  clickMode=true; clickIdx=0;
+  fx.classList.add('locked');
+  status.textContent='click slab 1 of 5 (left to right)';
+  status.className='status';
+  drawProfile(null,null);
+}
+mv.addEventListener('click',e=>{
+  if(!clickMode) return;
+  const r=mv.getBoundingClientRect();
+  const seed=Math.round((e.clientX-r.left)/r.width*CW);
+  const res=snapAt(seed);
+  if(!res){status.textContent='no edge pair near that click — try nearer the slab centre';
+           status.className='status no';return;}
+  Object.assign(SL[clickIdx],res);
+  clickIdx++;
+  if(clickIdx<5){status.textContent=`click slab ${clickIdx+1} of 5`;status.className='status';}
+  else{clickMode=false; fx.classList.remove('locked');
+       const p=plausible();
+       status.textContent=p.ok?'5 slabs snapped':`snapped, but check spacing (ratio ${p.gr.toFixed(1)})`;
+       status.className=p.ok?'status ok':'status';
+       const mid=SL[2]; RAIL=+(mid.y+mid.h/2).toFixed(1);
+       document.getElementById('rail').value=RAIL;
+       document.getElementById('railv').textContent=RAIL+'%';}
+  apply();
+});
 
 /* ---------------- manual nudge ---------------- */
 let drag=null;
@@ -393,6 +455,7 @@ document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)ret
   img.removeAttribute('crossorigin');
   img.src=URL.createObjectURL(f);img.style.opacity=1;document.getElementById('drop').hidden=true;};
 document.getElementById('detect').onclick=detect;
+document.getElementById('click').onclick=startClick;
 document.getElementById('sens').oninput=e=>document.getElementById('sensv').textContent=e.target.value;
 document.getElementById('sens').onchange=detect;
 const tog=(id,fn)=>document.getElementById(id).onclick=e=>{
