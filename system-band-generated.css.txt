@@ -1,0 +1,114 @@
+<!-- ===== index.html — replace the system-band figure ===== -->
+<figure class="keyvis" style="margin:0">
+  <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
+  <div class="fx band">
+    <span class="smoke" aria-hidden="true"></span><span class="rail" aria-hidden="true"></span>
+    <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
+    <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
+    <div class="slab s1"><span class="ttl">Client</span><span class="sub">Next.js 15 · RTL</span><span class="num">01</span></div>
+    <div class="slab s2"><span class="ttl">Edge</span><span class="sub">Vercel</span><span class="num">02</span></div>
+    <div class="slab s3"><span class="ttl">Server actions</span><span class="sub">Zod validated</span><span class="num">03</span></div>
+    <div class="slab s4 gate"><span class="ttl">Permission gate</span><span class="sub">RLS · default deny</span><span class="num">04</span></div>
+    <div class="slab s5"><span class="ttl">Postgres</span><span class="sub">43 tables · 4 roles</span><span class="num">05</span></div>
+    <span class="packet" aria-hidden="true"></span>
+  </div>
+</figure>
+
+/* ===== index.html — add near the .mv rules ===== */
+.keyvis{position:relative;overflow:hidden}
+.fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
+  --dur:9s; --run:61.80%; --pw:3.4%}
+
+.fx{position:absolute;inset:0;z-index:3;display:block;--dur:9s;--run:60%}
+
+.band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;pointer-events:none;
+  background:
+    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.12), transparent 62%),
+    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.09), transparent 65%),
+    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.10), transparent 60%);
+  animation:smokeA 30s ease-in-out infinite alternate}
+.band .smoke::after{content:"";position:absolute;inset:-20%;opacity:.22;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0.74 0 0 0 0 0.79 0 0 0 0 0.87 0 0 0 -1.15 0.60'/></filter><rect width='420' height='300' filter='url(%23s)'/></svg>");
+  background-size:62% 130%;animation:smokePan 52s linear infinite}
+@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}to{transform:translate3d(3%,-2%,0) scale(1.08)}}
+@keyframes smokePan{to{background-position:62% -130%}}
+
+.band .rail{position:absolute;height:3px;transform:translateY(-50%);pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(192,138,62,.55) 10%,rgba(192,138,62,.55) 90%,transparent);
+  box-shadow:0 0 14px rgba(192,138,62,.30)}
+
+.band .slab{position:absolute;border-radius:8px;
+  border:3px solid rgba(192,138,62,.82);
+  box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07);
+  animation:slabFlare var(--dur) linear infinite;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:10px 8px;text-align:center}
+.band .slab.gate{border-width:4px;border-color:rgba(255,176,32,.88);
+  box-shadow:0 0 0 1px rgba(255,176,32,.22),0 0 26px rgba(255,176,32,.26),inset 0 0 30px rgba(255,176,32,.09);
+  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite}
+@keyframes slabFlare{
+  0%,86%,100%{border-color:rgba(192,138,62,.82);
+    box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07)}
+  92%{border-color:#7BFFC0;
+    box-shadow:0 0 0 1px rgba(78,209,139,.55),0 0 36px rgba(78,209,139,.55),
+               0 0 74px rgba(78,209,139,.26),inset 0 0 44px rgba(78,209,139,.20)}}
+@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.05)}50%{background:rgba(255,176,32,.15)}}
+
+.band .slab .ttl{font-size:clamp(11px,1.15vw,17px);font-weight:600;letter-spacing:-.02em;
+  color:#EFF3F8;text-shadow:0 2px 12px rgba(0,0,0,.9);line-height:1.15}
+.band .slab .sub{font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.72vw,10px);
+  letter-spacing:.06em;color:#A6B2C0;text-shadow:0 1px 10px rgba(0,0,0,.95);line-height:1.4}
+.band .slab .num{position:absolute;bottom:8px;font-family:'IBM Plex Mono',monospace;
+  font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
+.band .slab.gate .ttl{color:var(--amber)}
+.band.no-text .ttl,.band.no-text .sub,.band.no-text .num{display:none}
+.band .cap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(192,138,62,.85);pointer-events:none}
+.band .cap.top{top:5%}.band .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
+.band.no-text .cap{display:none}
+
+/* the packet: a rounded green box with a comet tail, flaring at each frame */
+.band .packet{position:absolute;width:var(--pw,3.4%);aspect-ratio:1/1;border-radius:22%;
+  background:linear-gradient(150deg,#B6FFD9,#4ED18B 55%,#2BA96B);
+  transform:translate(-50%,-50%);pointer-events:none;
+  animation:packetRun var(--dur) linear infinite, packetFlare var(--dur) linear infinite}
+.band .packet::before{content:"";position:absolute;right:64%;top:50%;transform:translateY(-50%);
+  width:520%;height:34%;border-radius:99px;
+  background:linear-gradient(270deg,rgba(78,209,139,.68),rgba(78,209,139,.20) 42%,transparent 78%);
+  filter:blur(1px)}
+.band .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
+  width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
+
+.band .s1{left:8.34%;top:9.71%;width:7.08%;height:89.97%;animation-delay:-9s}
+.band .s2{left:27.59%;top:11%;width:2.74%;height:75.73%;animation-delay:-6.51s}
+.band .s3{left:45.7%;top:12.94%;width:6.79%;height:81.23%;animation-delay:-3.58s}
+.band .s4{left:63.39%;top:13.59%;width:4.48%;height:86.08%;
+  animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
+  animation-delay:-1.17s,0s}
+.band .s5{left:71.73%;top:15.53%;width:3.9%;height:84.14%;animation-delay:0s}
+.band .rail{left:11.88%;width:61.80%;top:53.6%}
+.band .packet{left:11.88%;top:53.6%}
+
+@keyframes packetRun{0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  4%{opacity:1} 92%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(var(--run));opacity:0}}
+@keyframes packetFlare{0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  0.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  0.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  2.2%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  25.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  27.6%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  29.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  58.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  60.2%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  62.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  84.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  87.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  89.2%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  97.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  100.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  100.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  100%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}}
+
+body.reduced .band *,body.reduced .band *::before,body.reduced .band *::after{animation:none!important}
+@media (prefers-reduced-motion: reduce){.band *,.band *::before,.band *::after{animation:none!important}}

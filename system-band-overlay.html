@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>System band overlay — drag to align</title>
+<title>System band overlay — auto align</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#07080A;--surface:#0E1116;--line:rgba(255,255,255,.09);--txt:#E6EAEF;
-  --mut:#8C97A5;--dim:#5F6975;--bronze:#C08A3E;--bronze2:#D9A65C;--green:#4ED18B;--amber:#FFB020}
+  --mut:#8C97A5;--dim:#5F6975;--bronze:#C08A3E;--bronze2:#D9A65C;--green:#4ED18B;--amber:#FFB020;--red:#E5484D}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1320px;margin:0 auto;padding:32px clamp(16px,4vw,34px) 90px}
@@ -23,24 +23,27 @@ h1{font-size:clamp(23px,4.4vw,34px);font-weight:600;letter-spacing:-.03em;margin
   border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 button{font:inherit;font-size:12.5px;font-weight:500;background:var(--surface);color:var(--txt);
   border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
+button.go{background:var(--bronze);color:#14100A;border-color:var(--bronze);font-weight:600}
 button[aria-pressed="true"]{background:var(--bronze);color:#14100A;border-color:var(--bronze);font-weight:600}
 label.rng{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;
   font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 input[type=range]{accent-color:var(--bronze);width:110px}
+.status{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);margin-left:auto}
+.status.ok{color:var(--green)}.status.no{color:var(--red)}
 pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;overflow:auto;
-  font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;color:#C6CFDA;margin-top:22px;max-height:440px}
+  font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;color:#C6CFDA;margin-top:22px;max-height:420px}
 
 .stage-wrap{margin-top:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0B0F14}
 .mv{position:relative;aspect-ratio:21/9;overflow:hidden;touch-action:none}
-.mv>img{width:100%;height:100%;object-fit:cover;display:block}
+.mv>img{width:100%;height:100%;object-fit:fill;display:block}
+#prof{display:block;width:100%;height:64px;background:#0B0F14;border-top:1px solid var(--line)}
 .drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
   font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);text-align:center;padding:24px;line-height:1.9}
 .drop b{color:var(--bronze2)}
 
 /* ===================== OVERLAY ===================== */
-.fx{position:absolute;inset:0;z-index:3;display:block;--dur:9s}
+.fx{position:absolute;inset:0;z-index:3;display:block;--dur:9s;--run:60%}
 .fx.locked{pointer-events:none}
-
 .fx .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;pointer-events:none;
   background:
     radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.12), transparent 62%),
@@ -57,17 +60,14 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;pa
   background:linear-gradient(90deg,transparent,rgba(192,138,62,.55) 10%,rgba(192,138,62,.55) 90%,transparent);
   box-shadow:0 0 14px rgba(192,138,62,.30)}
 
-/* frames — thick and bright, the thin 1.5px version read as a hairline over the render */
 .fx .slab{position:absolute;border-radius:8px;cursor:move;
   border:3px solid rgba(192,138,62,.82);
-  box-shadow:0 0 0 1px rgba(192,138,62,.20), 0 0 20px rgba(192,138,62,.20),
-             inset 0 0 26px rgba(192,138,62,.07);
+  box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07);
   animation:slabFlare var(--dur) linear infinite;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
   padding:10px 8px;text-align:center}
 .fx .slab.gate{border-width:4px;border-color:rgba(255,176,32,.88);
-  box-shadow:0 0 0 1px rgba(255,176,32,.22), 0 0 26px rgba(255,176,32,.26),
-             inset 0 0 30px rgba(255,176,32,.09);
+  box-shadow:0 0 0 1px rgba(255,176,32,.22),0 0 26px rgba(255,176,32,.26),inset 0 0 30px rgba(255,176,32,.09);
   animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite}
 @keyframes slabFlare{
   0%,86%,100%{border-color:rgba(192,138,62,.82);
@@ -85,55 +85,56 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;pa
   font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
 .fx .slab.gate .ttl{color:var(--amber)}
 .fx.no-text .ttl,.fx.no-text .sub,.fx.no-text .num{display:none}
-
 .fx .cap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
   letter-spacing:.18em;text-transform:uppercase;color:rgba(192,138,62,.85);pointer-events:none}
-.fx .cap.top{top:5%}
-.fx .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
+.fx .cap.top{top:5%}.fx .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
 .fx.no-text .cap{display:none}
 
-.fx .packet{position:absolute;width:13px;height:13px;border-radius:50%;background:#8CFFC4;
-  box-shadow:0 0 10px 3px rgba(78,209,139,.9),0 0 30px 9px rgba(78,209,139,.45),
-             0 0 66px 20px rgba(78,209,139,.16);
+/* the packet: a rounded green box with a comet tail, flaring at each frame */
+.fx .packet{position:absolute;width:var(--pw,3.4%);aspect-ratio:1/1;border-radius:22%;
+  background:linear-gradient(150deg,#B6FFD9,#4ED18B 55%,#2BA96B);
   transform:translate(-50%,-50%);pointer-events:none;
-  animation:packetRun var(--dur) linear infinite}
-.fx .packet::before{content:"";position:absolute;right:7px;top:50%;transform:translateY(-50%);
-  width:64px;height:4px;border-radius:2px;
-  background:linear-gradient(270deg,rgba(78,209,139,.6),transparent)}
+  animation:packetRun var(--dur) linear infinite, packetFlare var(--dur) linear infinite}
+.fx .packet::before{content:"";position:absolute;right:64%;top:50%;transform:translateY(-50%);
+  width:520%;height:34%;border-radius:99px;
+  background:linear-gradient(270deg,rgba(78,209,139,.68),rgba(78,209,139,.20) 42%,transparent 78%);
+  filter:blur(1px)}
+.fx .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
+  width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
 
 .handle{position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;border-radius:4px;
   background:var(--bronze);border:2px solid #0B0F14;cursor:nwse-resize}
-.fx.locked .handle{display:none}
-.fx.locked .slab{cursor:default}
-
+.fx.locked .handle{display:none}.fx.locked .slab{cursor:default}
 body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!important}
 </style>
 </head>
 <body>
 <div class="wrap">
   <p class="eyebrow">Goal B · system band</p>
-  <h1>Drag each frame onto its slab</h1>
-  <p class="sub">Five independent frames, not one evenly-spaced row. Drag a frame to move it, drag its corner handle to resize. Then copy the block at the bottom.</p>
+  <h1>Auto-align, from the pixels</h1>
+  <p class="sub">The frames are found by reading the image, not by guessing. Press Detect. Drag only if a frame needs a nudge afterwards.</p>
 
   <div class="note">
-    <b>Why the frames wouldn't line up.</b> The old overlay placed them at <code>x0 + i × gap</code> — a single spacing for all five. But your render was generated from a prompt that said <em>"receding very slightly"</em>, so the slabs are neither evenly spaced nor equal width. No single gap value can ever fit them. Each frame now has its own position and size.<br><br>
-    <b>And the file you attached has no glow — or animation.</b> I opened it: 824 bytes of flat <code>&lt;rect&gt;</code>, zero filters, zero gradients, zero keyframes, no requestAnimationFrame. The only box-shadows in it are editor chrome. What you liked was the live host preview, which didn't survive the export. The one thing worth copying was its <strong>stroke weight</strong> — 8px, and 10px on the gate. Mine were 1.5px hairlines. Frames are now 3px and 4px with real bloom.
+    <b>How it finds them.</b> The image goes to a canvas, and every column's mean luminance across the middle band becomes a profile. The five slabs are the five brightest plateaus in that profile — the graph under the image is that data, with the detected bands marked. For each band it then runs a row profile to find the top and bottom edges. If the render has five brighter-than-background verticals, it will find them.<br><br>
+    <b>If Detect fails</b>, raise or lower Sensitivity and press it again. The profile graph shows you what it's seeing, so you can tell whether the threshold is cutting through the slabs or through the background.
   </div>
 
   <div class="bar">
+    <button class="go" id="detect">Detect frames</button>
+    <label class="rng">Sensitivity <input type="range" id="sens" min="15" max="70" step="1" value="35"><span id="sensv">35</span></label>
     <button id="lock" aria-pressed="false">Lock</button>
     <button id="text" aria-pressed="true">Labels</button>
     <button id="smoke" aria-pressed="true">Smoke</button>
-    <button id="pk" aria-pressed="true">Packet</button>
     <button id="rm" aria-pressed="false">Reduced motion</button>
     <label class="rng">Loop <input type="range" id="dur" min="4" max="18" step="0.5" value="9"><span id="durv">9s</span></label>
     <label class="rng">Rail <input type="range" id="rail" min="10" max="90" step="0.2" value="50"><span id="railv">50%</span></label>
-    <button id="reset">Reset</button>
+    <label class="rng">Box <input type="range" id="pw" min="1.5" max="8" step="0.1" value="3.4"><span id="pwv">3.4%</span></label>
+    <span class="status" id="status">press Detect</span>
   </div>
 
   <div class="stage-wrap">
     <div class="mv" id="mv">
-      <img id="img" src="/assets/renders/system-band.webp" alt="system band render">
+      <img id="img" src="/assets/renders/system-band.webp" alt="system band render" crossorigin="anonymous">
       <div class="drop" id="drop" hidden>
         <span>couldn't load <b>/assets/renders/system-band.webp</b></span>
         <input type="file" id="file" accept="image/*">
@@ -146,6 +147,7 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
         <span class="packet" aria-hidden="true"></span>
       </div>
     </div>
+    <canvas id="prof"></canvas>
   </div>
 
   <pre id="out"></pre>
@@ -153,15 +155,16 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
 
 <script>
 const SL=[
- {id:'s1',num:'01',ttl:'Client',          sub:'Next.js 15 · RTL',    x:6.0, y:22, w:15.5, h:56},
- {id:'s2',num:'02',ttl:'Edge',            sub:'Vercel',              x:24.0,y:22, w:15.5, h:56},
- {id:'s3',num:'03',ttl:'Server actions',  sub:'Zod validated',       x:42.0,y:22, w:15.5, h:56},
- {id:'s4',num:'04',ttl:'Permission gate', sub:'RLS · default deny',  x:60.0,y:22, w:15.5, h:56, gate:1},
- {id:'s5',num:'05',ttl:'Postgres',        sub:'43 tables · 4 roles', x:78.0,y:22, w:15.5, h:56}
+ {id:'s1',num:'01',ttl:'Client',          sub:'Next.js 15 · RTL',   x:6, y:22, w:15.5, h:56},
+ {id:'s2',num:'02',ttl:'Edge',            sub:'Vercel',             x:24,y:22, w:15.5, h:56},
+ {id:'s3',num:'03',ttl:'Server actions',  sub:'Zod validated',      x:42,y:22, w:15.5, h:56},
+ {id:'s4',num:'04',ttl:'Permission gate', sub:'RLS · default deny', x:60,y:22, w:15.5, h:56, gate:1},
+ {id:'s5',num:'05',ttl:'Postgres',        sub:'43 tables · 4 roles',x:78,y:22, w:15.5, h:56}
 ];
-const DEF=JSON.parse(JSON.stringify(SL));
-let RAIL=50, DUR=9;
-const fx=document.getElementById('fx'), mv=document.getElementById('mv'), out=document.getElementById('out');
+let RAIL=50, DUR=9, PW=3.4, detected=null;
+const fx=document.getElementById('fx'), mv=document.getElementById('mv'),
+      out=document.getElementById('out'), img=document.getElementById('img'),
+      prof=document.getElementById('prof'), status=document.getElementById('status');
 
 SL.forEach(s=>{
   const el=document.createElement('div');
@@ -171,65 +174,184 @@ SL.forEach(s=>{
   fx.appendChild(el); s.el=el;
 });
 
+/* ---------------- detection ---------------- */
+function smooth(a,r){
+  const o=new Float64Array(a.length);
+  for(let i=0;i<a.length;i++){
+    let s=0,n=0;
+    for(let k=-r;k<=r;k++){const j=i+k; if(j>=0&&j<a.length){s+=a[j];n++;}}
+    o[i]=s/n;
+  }
+  return o;
+}
+function detect(){
+  if(!img.naturalWidth){status.textContent='image not loaded';status.className='status no';return;}
+  const W=720, H=Math.round(W*img.naturalHeight/img.naturalWidth);
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d',{willReadFrequently:true});
+  let px;
+  try{ g.drawImage(img,0,0,W,H); px=g.getImageData(0,0,W,H).data; }
+  catch(e){ status.textContent='canvas blocked (CORS) — load from disk'; status.className='status no'; return; }
+
+  const ya=Math.round(H*0.22), yb=Math.round(H*0.78);
+  const col=new Float64Array(W);
+  for(let x=0;x<W;x++){
+    let s=0;
+    for(let y=ya;y<yb;y++){const i=(y*W+x)*4; s+=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2];}
+    col[x]=s/(yb-ya);
+  }
+  const sm=smooth(col,Math.max(2,Math.round(W/180)));
+  const srt=[...sm].sort((a,b)=>a-b);
+  const base=srt[Math.floor(srt.length*0.25)], peak=srt[Math.floor(srt.length*0.97)];
+  const k=+document.getElementById('sens').value/100;
+  const thr=base+(peak-base)*k;
+
+  let runs=[],st=-1;
+  for(let x=0;x<W;x++){
+    if(sm[x]>=thr){ if(st<0) st=x; } else if(st>=0){ runs.push([st,x-1]); st=-1; }
+  }
+  if(st>=0) runs.push([st,W-1]);
+  const minW=W*0.02;
+  runs=runs.filter(r=>r[1]-r[0]>=minW);
+  /* merge runs separated by a gap smaller than a third of the narrower one */
+  for(let i=runs.length-2;i>=0;i--){
+    const gap=runs[i+1][0]-runs[i][1];
+    if(gap < Math.min(runs[i][1]-runs[i][0], runs[i+1][1]-runs[i+1][0])/3){
+      runs[i]=[runs[i][0],runs[i+1][1]]; runs.splice(i+1,1);
+    }
+  }
+  drawProfile(sm,thr,base,peak,runs,W);
+
+  if(runs.length!==5){
+    status.textContent=`found ${runs.length} bands, need 5 — adjust sensitivity`;
+    status.className='status no'; return;
+  }
+  runs.sort((a,b)=>a[0]-b[0]);
+  runs.forEach((r,i)=>{
+    const x0=r[0], x1=r[1];
+    /* row profile inside this band to find top and bottom */
+    const row=new Float64Array(H);
+    for(let y=0;y<H;y++){
+      let s=0;
+      for(let x=x0;x<=x1;x++){const t=(y*W+x)*4; s+=0.299*px[t]+0.587*px[t+1]+0.114*px[t+2];}
+      row[y]=s/(x1-x0+1);
+    }
+    const rs=smooth(row,Math.max(2,Math.round(H/60)));
+    const sr=[...rs].sort((a,b)=>a-b);
+    const rb=sr[Math.floor(sr.length*0.2)], rp=sr[Math.floor(sr.length*0.95)];
+    const rt=rb+(rp-rb)*0.32;
+    let ta=0,tb=H-1;
+    for(let y=0;y<H;y++){ if(rs[y]>=rt){ta=y;break;} }
+    for(let y=H-1;y>=0;y--){ if(rs[y]>=rt){tb=y;break;} }
+    const pad=(x1-x0)*0.02;
+    SL[i].x=+(((x0-pad)/W)*100).toFixed(2);
+    SL[i].w=+((((x1-x0)+pad*2)/W)*100).toFixed(2);
+    SL[i].y=+((ta/H)*100).toFixed(2);
+    SL[i].h=+(((tb-ta)/H)*100).toFixed(2);
+  });
+  detected=true;
+  const mid=SL[2];
+  RAIL=+(mid.y+mid.h/2).toFixed(1);
+  document.getElementById('rail').value=RAIL;
+  document.getElementById('railv').textContent=RAIL+'%';
+  status.textContent='5 bands locked on';
+  status.className='status ok';
+  apply();
+}
+function drawProfile(sm,thr,base,peak,runs,W){
+  const w=prof.clientWidth||900, h=64;
+  prof.width=w; prof.height=h;
+  const g=prof.getContext('2d');
+  g.clearRect(0,0,w,h);
+  runs.forEach(r=>{
+    g.fillStyle='rgba(78,209,139,.16)';
+    g.fillRect(r[0]/W*w,0,(r[1]-r[0])/W*w,h);
+  });
+  g.strokeStyle='rgba(255,176,32,.75)'; g.setLineDash([4,4]); g.beginPath();
+  const ty=h-((thr-base)/(peak-base||1))*(h-8)-4; g.moveTo(0,ty); g.lineTo(w,ty); g.stroke();
+  g.setLineDash([]);
+  g.strokeStyle='#C08A3E'; g.lineWidth=1.4; g.beginPath();
+  for(let i=0;i<W;i++){
+    const x=i/W*w, y=h-((sm[i]-base)/(peak-base||1))*(h-8)-4;
+    i?g.lineTo(x,y):g.moveTo(x,y);
+  }
+  g.stroke();
+}
+
+/* ---------------- manual nudge ---------------- */
 let drag=null;
 mv.addEventListener('pointerdown',e=>{
   if(fx.classList.contains('locked')) return;
   const slab=e.target.closest('.slab'); if(!slab) return;
   const s=SL.find(v=>v.el===slab); if(!s) return;
   const r=mv.getBoundingClientRect();
-  drag={s, mode:e.target.dataset.h?'size':'move',
-        px:e.clientX, py:e.clientY, x:s.x, y:s.y, w:s.w, h:s.h, rw:r.width, rh:r.height};
+  drag={s,mode:e.target.dataset.h?'size':'move',px:e.clientX,py:e.clientY,
+        x:s.x,y:s.y,w:s.w,h:s.h,rw:r.width,rh:r.height};
   mv.setPointerCapture(e.pointerId); e.preventDefault();
 });
 mv.addEventListener('pointermove',e=>{
   if(!drag) return;
   const dx=(e.clientX-drag.px)/drag.rw*100, dy=(e.clientY-drag.py)/drag.rh*100;
-  if(drag.mode==='move'){ drag.s.x=+(drag.x+dx).toFixed(2); drag.s.y=+(drag.y+dy).toFixed(2); }
-  else { drag.s.w=Math.max(3,+(drag.w+dx).toFixed(2)); drag.s.h=Math.max(6,+(drag.h+dy).toFixed(2)); }
+  if(drag.mode==='move'){drag.s.x=+(drag.x+dx).toFixed(2);drag.s.y=+(drag.y+dy).toFixed(2);}
+  else {drag.s.w=Math.max(3,+(drag.w+dx).toFixed(2));drag.s.h=Math.max(6,+(drag.h+dy).toFixed(2));}
   apply();
 });
 addEventListener('pointerup',()=>drag=null);
 
+/* ---------------- apply + emit ---------------- */
+const dyn=document.createElement('style'); document.head.appendChild(dyn);
 function apply(){
   fx.style.setProperty('--dur',DUR+'s');
-  SL.forEach(s=>{
-    s.el.style.left=s.x+'%'; s.el.style.top=s.y+'%';
-    s.el.style.width=s.w+'%'; s.el.style.height=s.h+'%';
-  });
+  fx.style.setProperty('--pw',PW+'%');
+  SL.forEach(s=>{s.el.style.left=s.x+'%';s.el.style.top=s.y+'%';
+                 s.el.style.width=s.w+'%';s.el.style.height=s.h+'%';});
   const c1=SL[0].x+SL[0].w/2, c5=SL[4].x+SL[4].w/2, span=c5-c1;
+  fx.style.setProperty('--run',span.toFixed(2)+'%');
   const rail=fx.querySelector('.rail');
   rail.style.left=c1+'%'; rail.style.width=span+'%'; rail.style.top=RAIL+'%';
   const pk=fx.querySelector('.packet');
   pk.style.left=c1+'%'; pk.style.top=RAIL+'%';
-  pk.style.setProperty('--run',span+'%');
-  const delays=SL.map(s=>{
-    const f=span?((s.x+s.w/2)-c1)/span:0;
-    return -(DUR*(1-Math.min(1,Math.max(0,f)))).toFixed(2);
-  });
+
+  /* fraction of the run at which the packet is centred on each frame */
+  const fr=SL.map(s=>span?Math.min(1,Math.max(0,((s.x+s.w/2)-c1)/span)):0);
+  const delays=fr.map(f=>-(DUR*(1-f)).toFixed(2));
   SL.forEach((s,i)=>s.el.style.animationDelay = s.gate?`${delays[i]}s, 0s`:`${delays[i]}s`);
-  write(delays,c1,span);
+
+  /* the box flares at each crossing — one keyframes rule with five peaks */
+  const stops=[];
+  fr.forEach(f=>{
+    const p=f*100;
+    stops.push([Math.max(0,p-2.2),'dim'],[p,'hot'],[Math.min(100,p+2.2),'dim']);
+  });
+  stops.sort((a,b)=>a[0]-b[0]);
+  const DIM='filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))';
+  const HOT='filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))';
+  const body=stops.map(([p,k])=>`${p.toFixed(1)}%{${k==='hot'?HOT:DIM}}`).join('\n  ');
+  dyn.textContent=
+`@keyframes packetRun{0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  4%{opacity:1} 92%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(var(--run));opacity:0}}
+@keyframes packetFlare{0%{${DIM}}
+  ${body}
+  100%{${DIM}}}`;
+  write(delays,c1,span,body,DIM,HOT);
 }
-
-/* the packet run distance has to reach the CSS, so it rides a custom property */
-const style=document.createElement('style');
-style.textContent=`@keyframes packetRun{
-  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
-  5%{opacity:1} 90%{opacity:1}
-  100%{transform:translate(-50%,-50%) translateX(var(--run,60%));opacity:0}}`;
-document.head.appendChild(style);
-
-function write(delays,c1,span){
+function write(delays,c1,span,body,DIM,HOT){
 const rows=SL.map((s,i)=>
-`.band .${s.id}{left:${s.x}%; top:${s.y}%; width:${s.w}%; height:${s.h}%;`+
-(s.gate?`\n  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite;
-  animation-delay:${delays[i]}s, 0s}`:` animation-delay:${delays[i]}s}`)).join('\n');
+`.band .${s.id}{left:${s.x}%;top:${s.y}%;width:${s.w}%;height:${s.h}%;`+
+(s.gate?`\n  animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
+  animation-delay:${delays[i]}s,0s}`:`animation-delay:${delays[i]}s}`)).join('\n');
+const css=document.querySelector('style').textContent
+  .split('/* ===================== OVERLAY ===================== */')[1]
+  .split('.handle{')[0]
+  .replace(/\.fx /g,'.band ').replace(/\.fx\.locked[^}]*}/g,'')
+  .replace(/\.fx\.no-text/g,'.band.no-text').replace(/cursor:move;/,'').trim();
 out.textContent=
 `<!-- ===== index.html — replace the system-band figure ===== -->
-<figure class="keyvis" style="margin:0" data-fx="band">
+<figure class="keyvis" style="margin:0">
   <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
   <div class="fx band">
-    <span class="smoke" aria-hidden="true"></span>
-    <span class="rail" aria-hidden="true"></span>
+    <span class="smoke" aria-hidden="true"></span><span class="rail" aria-hidden="true"></span>
     <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
     <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
 ${SL.map(s=>`    <div class="slab ${s.id}${s.gate?' gate':''}"><span class="ttl">${s.ttl}</span><span class="sub">${s.sub}</span><span class="num">${s.num}</span></div>`).join('\n')}
@@ -238,56 +360,56 @@ ${SL.map(s=>`    <div class="slab ${s.id}${s.gate?' gate':''}"><span class="ttl"
 </figure>
 
 /* ===== index.html — add near the .mv rules ===== */
-.keyvis{position:relative}
-.fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;--dur:${DUR}s;--run:${span.toFixed(2)}%}
+.keyvis{position:relative;overflow:hidden}
+.fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
+  --dur:${DUR}s; --run:${span.toFixed(2)}%; --pw:${PW}%}
 
-${document.querySelector('style').textContent
-  .split('/* ===================== OVERLAY ===================== */')[1]
-  .split('.handle{')[0]
-  .replace(/\.fx /g,'.band ')
-  .replace(/\.fx\.locked[^}]*}/g,'')
-  .replace(/\.fx\.no-text/g,'.band.no-text')
-  .replace(/cursor:move;/,'')
-  .trim()}
+${css}
 
 ${rows}
+.band .rail{left:${c1.toFixed(2)}%;width:${span.toFixed(2)}%;top:${RAIL}%}
+.band .packet{left:${c1.toFixed(2)}%;top:${RAIL}%}
 
-.band .rail{left:${c1.toFixed(2)}%; width:${span.toFixed(2)}%; top:${RAIL}%}
-.band .packet{left:${c1.toFixed(2)}%; top:${RAIL}%}
-@keyframes packetRun{
-  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
-  5%{opacity:1} 90%{opacity:1}
+@keyframes packetRun{0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  4%{opacity:1} 92%{opacity:1}
   100%{transform:translate(-50%,-50%) translateX(var(--run));opacity:0}}
+@keyframes packetFlare{0%{${DIM}}
+  ${body}
+  100%{${DIM}}}
 
 body.reduced .band *,body.reduced .band *::before,body.reduced .band *::after{animation:none!important}
 @media (prefers-reduced-motion: reduce){.band *,.band *::before,.band *::after{animation:none!important}}`;
 }
 
-const img=document.getElementById('img'), drop=document.getElementById('drop');
-img.onerror=()=>{drop.hidden=false;img.style.opacity=0};
-document.getElementById('file').onchange=e=>{const f=e.target.files[0]; if(!f)return;
-  img.src=URL.createObjectURL(f); img.style.opacity=1; drop.hidden=true;};
+/* ---------------- wiring ---------------- */
+img.onload=()=>{
+  mv.style.aspectRatio = img.naturalWidth+'/'+img.naturalHeight;
+  status.textContent=`image ${img.naturalWidth}×${img.naturalHeight} — press Detect`;
+  detect();
+};
+img.onerror=()=>{document.getElementById('drop').hidden=false;img.style.opacity=0;
+  status.textContent='image failed to load';status.className='status no';};
+document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)return;
+  img.removeAttribute('crossorigin');
+  img.src=URL.createObjectURL(f);img.style.opacity=1;document.getElementById('drop').hidden=true;};
+document.getElementById('detect').onclick=detect;
+document.getElementById('sens').oninput=e=>document.getElementById('sensv').textContent=e.target.value;
+document.getElementById('sens').onchange=detect;
 const tog=(id,fn)=>document.getElementById(id).onclick=e=>{
   const on=e.currentTarget.getAttribute('aria-pressed')!=='true';
-  e.currentTarget.setAttribute('aria-pressed',on); fn(on);};
+  e.currentTarget.setAttribute('aria-pressed',on);fn(on);};
 tog('lock',on=>fx.classList.toggle('locked',on));
 tog('text',on=>fx.classList.toggle('no-text',!on));
 tog('smoke',on=>fx.querySelector('.smoke').style.display=on?'':'none');
-tog('pk',on=>{fx.querySelector('.packet').style.display=on?'':'none';
-  fx.querySelector('.rail').style.display=on?'':'none';});
 tog('rm',on=>document.body.classList.toggle('rm',on));
 document.getElementById('dur').oninput=e=>{DUR=+e.target.value;
-  document.getElementById('durv').textContent=DUR+'s'; apply();};
+  document.getElementById('durv').textContent=DUR+'s';apply();};
 document.getElementById('rail').oninput=e=>{RAIL=+e.target.value;
-  document.getElementById('railv').textContent=RAIL+'%'; apply();};
-document.getElementById('reset').onclick=()=>{
-  DEF.forEach((d,i)=>Object.assign(SL[i],{x:d.x,y:d.y,w:d.w,h:d.h}));
-  RAIL=50; DUR=9;
-  document.getElementById('rail').value=50; document.getElementById('railv').textContent='50%';
-  document.getElementById('dur').value=9; document.getElementById('durv').textContent='9s';
-  apply();
-};
+  document.getElementById('railv').textContent=RAIL+'%';apply();};
+document.getElementById('pw').oninput=e=>{PW=+e.target.value;
+  document.getElementById('pwv').textContent=PW+'%';apply();};
 apply();
+if(img.complete && img.naturalWidth) img.onload();
 </script>
 </body>
 </html>
