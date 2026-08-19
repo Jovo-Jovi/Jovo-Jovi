@@ -227,10 +227,10 @@ body.reduced .bar{display:none}
   font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
 .band .slab.gate .ttl{color:var(--amber)}
 .band.no-text .ttl,.band.no-text .sub,.band.no-text .num{display:none}
-.band .cap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
+.band .bcap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
   letter-spacing:.18em;text-transform:uppercase;color:rgba(192,138,62,.85);pointer-events:none}
-.band .cap.top{top:5%}.band .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
-.band.no-text .cap{display:none}
+.band .bcap.top{top:5%}.band .bcap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
+.band.no-text .bcap{display:none}
 
 .band .packet{position:absolute;width:var(--pw,3.4%);aspect-ratio:1/1;border-radius:22%;
   background:linear-gradient(150deg,#B6FFD9,#4ED18B 55%,#2BA96B);
@@ -560,8 +560,8 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
           <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
           <div class="fx band">
             <span class="smoke" aria-hidden="true"></span><span class="rail" aria-hidden="true"></span>
-            <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
-            <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
+            <span class="bcap top" aria-hidden="true">SYSTEM BAND · BETK</span>
+            <span class="bcap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
             <div class="slab s1"><span class="ttl">Client</span><span class="sub">Next.js 15 · RTL</span><span class="num">01</span></div>
             <div class="slab s2"><span class="ttl">Edge</span><span class="sub">Vercel</span><span class="num">02</span></div>
             <div class="slab s3"><span class="ttl">Server actions</span><span class="sub">Zod validated</span><span class="num">03</span></div>

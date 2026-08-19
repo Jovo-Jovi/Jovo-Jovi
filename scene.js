@@ -731,7 +731,7 @@ const ACTS=[
 const rail=document.getElementById('rail');
 ACTS.slice(1).forEach(()=>rail.appendChild(document.createElement('i')));
 const dots=[...rail.children];
-const caps=[...document.querySelectorAll('.cap')];
+const caps=[...document.querySelectorAll('#caps .cap')];
 const hudAct=document.getElementById('hudAct'), tel=document.getElementById('tel'), track=document.getElementById('track');
 const cp=new THREE.Vector3(), cl=new THREE.Vector3();
 /* one accent per act: warm for the machine work, cool for autonomy, green for data */
@@ -840,6 +840,7 @@ function frame(now){
 
   if(!reduced) caps.forEach(el=>{
     const A=ACTS[+el.dataset.act];
+    if(!A) return;
     const inK = A.a===0 ? 1 : smooth(seg(p,A.a,A.a+.04));
     const outK=smooth(seg(p,A.b-.032,A.b));
     el.style.opacity=(inK*(1-outK)).toFixed(3);

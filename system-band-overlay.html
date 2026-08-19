@@ -85,10 +85,10 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;pa
   font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
 .fx .slab.gate .ttl{color:var(--amber)}
 .fx.no-text .ttl,.fx.no-text .sub,.fx.no-text .num{display:none}
-.fx .cap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
+.fx .bcap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
   letter-spacing:.18em;text-transform:uppercase;color:rgba(192,138,62,.85);pointer-events:none}
-.fx .cap.top{top:5%}.fx .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
-.fx.no-text .cap{display:none}
+.fx .bcap.top{top:5%}.fx .bcap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
+.fx.no-text .bcap{display:none}
 
 /* the packet: a rounded green box with a comet tail, flaring at each frame */
 .fx .packet{position:absolute;width:var(--pw,3.4%);aspect-ratio:1/1;border-radius:22%;
@@ -151,8 +151,8 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
       <div class="fx" id="fx">
         <span class="smoke" aria-hidden="true"></span>
         <span class="rail" aria-hidden="true"></span>
-        <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
-        <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
+        <span class="bcap top" aria-hidden="true">SYSTEM BAND · BETK</span>
+        <span class="bcap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
         <span class="packet" aria-hidden="true"></span>
       </div>
     </div>
@@ -458,8 +458,8 @@ out.textContent=
   <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
   <div class="fx band">
     <span class="smoke" aria-hidden="true"></span><span class="rail" aria-hidden="true"></span>
-    <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
-    <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
+    <span class="bcap top" aria-hidden="true">SYSTEM BAND · BETK</span>
+    <span class="bcap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
 ${SL.map(s=>`    <div class="slab ${s.id}${s.gate?' gate':''}"><span class="ttl">${s.ttl}</span><span class="sub">${s.sub}</span><span class="num">${s.num}</span></div>`).join('\n')}
     <span class="packet" aria-hidden="true"></span>
   </div>
