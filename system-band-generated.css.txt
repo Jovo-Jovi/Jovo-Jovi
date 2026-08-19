@@ -17,9 +17,7 @@
 /* ===== index.html — add near the .mv rules ===== */
 .keyvis{position:relative;overflow:hidden}
 .fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
-  --dur:9s; --run:61.80%; --pw:3.4%}
-
-.fx{position:absolute;inset:0;z-index:3;display:block;--dur:9s;--run:60%}
+  --dur:9s; --run:90.19%; --pw:3.4%}
 
 .band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;pointer-events:none;
   background:
@@ -79,35 +77,35 @@
 .band .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
   width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
 
-.band .s1{left:8.34%;top:9.71%;width:7.08%;height:89.97%;animation-delay:-9s}
-.band .s2{left:27.59%;top:11%;width:2.74%;height:75.73%;animation-delay:-6.51s}
-.band .s3{left:45.7%;top:12.94%;width:6.79%;height:81.23%;animation-delay:-3.58s}
-.band .s4{left:63.39%;top:13.59%;width:4.48%;height:86.08%;
+.band .s1{left:8.61%;top:9.71%;width:10.42%;height:75.08%;animation-delay:-7.41s}
+.band .s2{left:27.78%;top:11.33%;width:10.69%;height:73.46%;animation-delay:-5.48s}
+.band .s3{left:45.97%;top:13.59%;width:10.69%;height:71.2%;animation-delay:-3.67s}
+.band .s4{left:64.17%;top:14.24%;width:10.56%;height:70.55%;
   animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
-  animation-delay:-1.17s,0s}
-.band .s5{left:71.73%;top:15.53%;width:3.9%;height:84.14%;animation-delay:0s}
-.band .rail{left:11.88%;width:61.80%;top:53.6%}
-.band .packet{left:11.88%;top:53.6%}
+  animation-delay:-1.86s,0s}
+.band .s5{left:82.22%;top:14.24%;width:9.58%;height:70.87%;animation-delay:-0.11s}
+.band .rail{left:5.11%;width:90.19%;top:49.2%}
+.band .packet{left:5.11%;top:49.2%}
 
 @keyframes packetRun{0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
   4%{opacity:1} 92%{opacity:1}
   100%{transform:translate(-50%,-50%) translateX(var(--run));opacity:0}}
 @keyframes packetFlare{0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  0.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  0.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
-  2.2%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  25.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  27.6%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
-  29.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  58.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  60.2%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
-  62.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  84.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  87.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
-  89.2%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  97.8%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
-  100.0%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
-  100.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  7.5%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  9.7%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  11.9%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  28.9%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  31.1%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  33.3%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  49.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  51.2%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  53.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  69.1%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  71.3%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  73.5%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  88.6%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  90.8%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  93.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
   100%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}}
 
 body.reduced .band *,body.reduced .band *::before,body.reduced .band *::after{animation:none!important}

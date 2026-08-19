@@ -182,57 +182,100 @@ body.reduced .bar{display:none}
 .mv svg,.mv img,.mv picture{width:100%;height:100%;display:block}
 .mv.r11{aspect-ratio:1/1}.mv.r32{aspect-ratio:3/2}.mv.r169{aspect-ratio:16/9}.mv.r219{aspect-ratio:21/9}
 
-/* system-band overlay — defaults from system-band-overlay.html, tuned after deploy */
+/* system-band overlay — click-snapped positions from system-band-generated.css.txt */
 .fx.band{position:absolute;inset:0;z-index:3;pointer-events:none;display:block;
-  --x0:6%; --gap:18.4%; --w:13.5%; --y0:22%; --h:56%; --rail:50%; --dur:9s}
+  --dur:9s; --run:90.19%; --pw:3.4%}
 
-.band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;
+.band .smoke{position:absolute;inset:-12%;mix-blend-mode:screen;pointer-events:none;
   background:
-    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.11), transparent 62%),
-    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.08), transparent 65%),
-    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.09), transparent 60%);
+    radial-gradient(38% 46% at 20% 64%, rgba(152,172,196,.12), transparent 62%),
+    radial-gradient(30% 40% at 56% 38%, rgba(192,138,62,.09), transparent 65%),
+    radial-gradient(44% 52% at 84% 66%, rgba(140,160,186,.10), transparent 60%);
   animation:smokeA 30s ease-in-out infinite alternate}
-.band .smoke::after{content:"";position:absolute;inset:-20%;opacity:.20;mix-blend-mode:screen;
+.band .smoke::after{content:"";position:absolute;inset:-20%;opacity:.22;mix-blend-mode:screen;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='4' seed='7'/><feColorMatrix values='0 0 0 0 0.74 0 0 0 0 0.79 0 0 0 0 0.87 0 0 0 -1.15 0.60'/></filter><rect width='420' height='300' filter='url(%23s)'/></svg>");
-  background-size:62% 130%; animation:smokePan 52s linear infinite}
-@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}
-                  to{transform:translate3d(3%,-2%,0) scale(1.08)}}
+  background-size:62% 130%;animation:smokePan 52s linear infinite}
+@keyframes smokeA{from{transform:translate3d(-2.5%,1.5%,0) scale(1)}to{transform:translate3d(3%,-2%,0) scale(1.08)}}
 @keyframes smokePan{to{background-position:62% -130%}}
 
-.band .rail{position:absolute;left:var(--x0);top:var(--rail);height:2px;
-  width:calc(var(--gap) * 4 + var(--w));transform:translateY(-50%);
-  background:linear-gradient(90deg,transparent,rgba(192,138,62,.42) 12%,rgba(192,138,62,.42) 88%,transparent)}
+.band .rail{position:absolute;height:3px;transform:translateY(-50%);pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(192,138,62,.55) 10%,rgba(192,138,62,.55) 90%,transparent);
+  box-shadow:0 0 14px rgba(192,138,62,.30)}
 
-.band .slab{position:absolute;top:var(--y0);height:var(--h);width:var(--w);border-radius:7px;
-  border:1.5px solid rgba(192,138,62,.42);animation:slabFlare var(--dur) linear infinite}
-.band .s1{left:calc(var(--x0) + 0 * var(--gap)); animation-delay:-8.30s}
-.band .s2{left:calc(var(--x0) + 1 * var(--gap)); animation-delay:-6.40s}
-.band .s3{left:calc(var(--x0) + 2 * var(--gap)); animation-delay:-4.50s}
-.band .s4{left:calc(var(--x0) + 3 * var(--gap));
-  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite;
-  animation-delay:-2.60s, 0s}
-.band .s5{left:calc(var(--x0) + 4 * var(--gap)); animation-delay:-0.70s}
+.band .slab{position:absolute;border-radius:8px;
+  border:3px solid rgba(192,138,62,.82);
+  box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07);
+  animation:slabFlare var(--dur) linear infinite;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:10px 8px;text-align:center}
+.band .slab.gate{border-width:4px;border-color:rgba(255,176,32,.88);
+  box-shadow:0 0 0 1px rgba(255,176,32,.22),0 0 26px rgba(255,176,32,.26),inset 0 0 30px rgba(255,176,32,.09);
+  animation:slabFlare var(--dur) linear infinite, gatePulse 2.4s ease-in-out infinite}
 @keyframes slabFlare{
-  0%,88%,100%{border-color:rgba(192,138,62,.42);box-shadow:none}
-  93%{border-color:rgba(78,209,139,.95);
-      box-shadow:0 0 22px rgba(78,209,139,.30),inset 0 0 24px rgba(78,209,139,.14)}}
-@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.045)}
-                     50%{background:rgba(255,176,32,.14)}}
+  0%,86%,100%{border-color:rgba(192,138,62,.82);
+    box-shadow:0 0 0 1px rgba(192,138,62,.20),0 0 20px rgba(192,138,62,.20),inset 0 0 26px rgba(192,138,62,.07)}
+  92%{border-color:#7BFFC0;
+    box-shadow:0 0 0 1px rgba(78,209,139,.55),0 0 36px rgba(78,209,139,.55),
+               0 0 74px rgba(78,209,139,.26),inset 0 0 44px rgba(78,209,139,.20)}}
+@keyframes gatePulse{0%,100%{background:rgba(255,176,32,.05)}50%{background:rgba(255,176,32,.15)}}
 
-.band .packet{position:absolute;top:var(--rail);left:var(--x0);width:11px;height:11px;border-radius:50%;
-  background:#4ED18B;box-shadow:0 0 14px 3px rgba(78,209,139,.55);
-  transform:translate(-50%,-50%);animation:packetRun var(--dur) linear infinite}
-.band .packet::before{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  width:52px;height:3px;border-radius:2px;
-  background:linear-gradient(270deg,rgba(78,209,139,.55),transparent)}
-@keyframes packetRun{
-  0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
-  5%{opacity:1} 90%{opacity:1}
-  100%{transform:translate(-50%,-50%) translateX(calc(var(--gap) * 4 + var(--w)));opacity:0}}
+.band .slab .ttl{font-size:clamp(11px,1.15vw,17px);font-weight:600;letter-spacing:-.02em;
+  color:#EFF3F8;text-shadow:0 2px 12px rgba(0,0,0,.9);line-height:1.15}
+.band .slab .sub{font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.72vw,10px);
+  letter-spacing:.06em;color:#A6B2C0;text-shadow:0 1px 10px rgba(0,0,0,.95);line-height:1.4}
+.band .slab .num{position:absolute;bottom:8px;font-family:'IBM Plex Mono',monospace;
+  font-size:clamp(7px,.7vw,10px);letter-spacing:.16em;color:rgba(192,138,62,.9)}
+.band .slab.gate .ttl{color:var(--amber)}
+.band.no-text .ttl,.band.no-text .sub,.band.no-text .num{display:none}
+.band .cap{position:absolute;left:2.5%;font-family:'IBM Plex Mono',monospace;font-size:clamp(7px,.7vw,10px);
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(192,138,62,.85);pointer-events:none}
+.band .cap.top{top:5%}.band .cap.bot{bottom:5.5%;color:rgba(166,178,192,.75)}
+.band.no-text .cap{display:none}
 
-body.reduced .band *,body.reduced .band *::after,body.reduced .band *::before{animation:none!important}
-@media (prefers-reduced-motion: reduce){
-  .band *,.band *::after,.band *::before{animation:none!important}}
+.band .packet{position:absolute;width:var(--pw,3.4%);aspect-ratio:1/1;border-radius:22%;
+  background:linear-gradient(150deg,#B6FFD9,#4ED18B 55%,#2BA96B);
+  transform:translate(-50%,-50%);pointer-events:none;
+  animation:packetRun var(--dur) linear infinite, packetFlare var(--dur) linear infinite}
+.band .packet::before{content:"";position:absolute;right:64%;top:50%;transform:translateY(-50%);
+  width:520%;height:34%;border-radius:99px;
+  background:linear-gradient(270deg,rgba(78,209,139,.68),rgba(78,209,139,.20) 42%,transparent 78%);
+  filter:blur(1px)}
+.band .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
+  width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
+
+.band .s1{left:8.61%;top:9.71%;width:10.42%;height:75.08%;animation-delay:-7.41s}
+.band .s2{left:27.78%;top:11.33%;width:10.69%;height:73.46%;animation-delay:-5.48s}
+.band .s3{left:45.97%;top:13.59%;width:10.69%;height:71.2%;animation-delay:-3.67s}
+.band .s4{left:64.17%;top:14.24%;width:10.56%;height:70.55%;
+  animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
+  animation-delay:-1.86s,0s}
+.band .s5{left:82.22%;top:14.24%;width:9.58%;height:70.87%;animation-delay:-0.11s}
+.band .rail{left:5.11%;width:90.19%;top:49.2%}
+.band .packet{left:5.11%;top:49.2%}
+
+@keyframes packetRun{0%{transform:translate(-50%,-50%) translateX(0);opacity:0}
+  4%{opacity:1} 92%{opacity:1}
+  100%{transform:translate(-50%,-50%) translateX(var(--run));opacity:0}}
+@keyframes packetFlare{0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  7.5%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  9.7%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  11.9%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  28.9%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  31.1%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  33.3%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  49.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  51.2%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  53.4%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  69.1%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  71.3%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  73.5%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  88.6%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  90.8%{filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))}
+  93.0%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}
+  100%{filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))}}
+
+body.reduced .band *,body.reduced .band *::before,body.reduced .band *::after{animation:none!important}
+@media (prefers-reduced-motion: reduce){.band *,.band *::before,.band *::after{animation:none!important}}
 
 .card .txt{padding:clamp(18px,2.2vw,26px)}
 .card .st{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
@@ -513,14 +556,19 @@ body.reduced .rail,body.reduced .tel,body.reduced .lbl,body.reduced .hud{display
     </div>
 
       <div class="wrap">
-        <figure class="keyvis" style="margin:0" data-fx="band">
+        <figure class="keyvis" style="margin:0">
           <img src="/assets/renders/system-band.webp" alt="Five glass slabs on a rail, a request passing through a permission gate" loading="lazy" decoding="async">
-          <i class="fx band" aria-hidden="true">
-            <span class="smoke"></span><span class="rail"></span>
-            <span class="slab s1"></span><span class="slab s2"></span><span class="slab s3"></span>
-            <span class="slab s4"></span><span class="slab s5"></span>
-            <span class="packet"></span>
-          </i>
+          <div class="fx band">
+            <span class="smoke" aria-hidden="true"></span><span class="rail" aria-hidden="true"></span>
+            <span class="cap top" aria-hidden="true">SYSTEM BAND · BETK</span>
+            <span class="cap bot" aria-hidden="true">REQUEST PATH · EVERY WRITE PASSES ALL FIVE</span>
+            <div class="slab s1"><span class="ttl">Client</span><span class="sub">Next.js 15 · RTL</span><span class="num">01</span></div>
+            <div class="slab s2"><span class="ttl">Edge</span><span class="sub">Vercel</span><span class="num">02</span></div>
+            <div class="slab s3"><span class="ttl">Server actions</span><span class="sub">Zod validated</span><span class="num">03</span></div>
+            <div class="slab s4 gate"><span class="ttl">Permission gate</span><span class="sub">RLS · default deny</span><span class="num">04</span></div>
+            <div class="slab s5"><span class="ttl">Postgres</span><span class="sub">43 tables · 4 roles</span><span class="num">05</span></div>
+            <span class="packet" aria-hidden="true"></span>
+          </div>
         </figure>
         <p class="keycap">Nothing reaches the data without passing validation and a per-row permission check. That is the part of the design I spend the most time on.</p>
       </div>

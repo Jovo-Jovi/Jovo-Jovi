@@ -102,9 +102,14 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:12px;pa
 .fx .packet::after{content:"";position:absolute;right:74%;top:50%;transform:translateY(-50%);
   width:300%;height:12%;border-radius:99px;background:linear-gradient(270deg,rgba(190,255,222,.75),transparent)}
 
-.handle{position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;border-radius:4px;
-  background:var(--bronze);border:2px solid #0B0F14;cursor:nwse-resize}
-.fx.locked .handle{display:none}.fx.locked .slab{cursor:default}
+.h{position:absolute;background:var(--bronze);border:2px solid #0B0F14;border-radius:3px}
+.h.n{top:-6px;left:50%;transform:translateX(-50%);width:26px;height:11px;cursor:ns-resize}
+.h.s{bottom:-6px;left:50%;transform:translateX(-50%);width:26px;height:11px;cursor:ns-resize}
+.h.w{left:-6px;top:50%;transform:translateY(-50%);width:11px;height:26px;cursor:ew-resize}
+.h.e{right:-6px;top:50%;transform:translateY(-50%);width:11px;height:26px;cursor:ew-resize}
+.h.rot{top:-24px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;
+  background:var(--green);cursor:ew-resize}
+.fx.locked .h{display:none}.fx.locked .slab{cursor:default}
 body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!important}
 </style>
 </head>
@@ -115,6 +120,8 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
   <p class="sub">The frames are found by reading the image, not by guessing. Press Detect. Drag only if a frame needs a nudge afterwards.</p>
 
   <div class="note">
+    <b>Square frames cannot fit slabs drawn in perspective.</b> The render was generated from a prompt that said <em>"receding very slightly"</em>, so the slabs are trapezoids. A CSS border is always an axis-aligned rectangle. Drag <b>Depth</b> to tilt all five toward a shared vanishing point, then drag a frame's green handle to fine-tune that one.<br><br>
+    <b>Four edge handles per frame.</b> Top, bottom, left, right move independently — the corner-only handle could never fix a bottom edge on its own. Bottom detection also stops at the slab base now instead of running into its floor reflection.<br><br>
     <b>Click mode is the one that works.</b> Press it, then click the centre of each slab left to right. Each click snaps to the strongest edge either side of it, and to the top and bottom of that column. Five clicks, pixel-accurate, and it cannot mis-pair.<br><br>
     <b>Auto detect</b> looks for the ten frame edges and pairs them into five slabs. It reports a gap ratio and width ratio, and tells you when the pairing is implausible instead of handing you a wrong answer. The graph is the edge profile — green marks are detected edges.
   </div>
@@ -130,6 +137,7 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
     <label class="rng">Loop <input type="range" id="dur" min="4" max="18" step="0.5" value="9"><span id="durv">9s</span></label>
     <label class="rng">Rail <input type="range" id="rail" min="10" max="90" step="0.2" value="50"><span id="railv">50%</span></label>
     <label class="rng">Box <input type="range" id="pw" min="1.5" max="8" step="0.1" value="3.4"><span id="pwv">3.4%</span></label>
+    <label class="rng">Depth <input type="range" id="spread" min="-30" max="30" step="0.5" value="0"><span id="spreadv">0°</span></label>
     <span class="status" id="status">press Detect</span>
   </div>
 
@@ -156,13 +164,13 @@ body.rm .fx *,body.rm .fx *::before,body.rm .fx *::after{animation:none!importan
 
 <script>
 const SL=[
- {id:'s1',num:'01',ttl:'Client',          sub:'Next.js 15 · RTL',   x:6, y:22, w:15.5, h:56},
- {id:'s2',num:'02',ttl:'Edge',            sub:'Vercel',             x:24,y:22, w:15.5, h:56},
- {id:'s3',num:'03',ttl:'Server actions',  sub:'Zod validated',      x:42,y:22, w:15.5, h:56},
- {id:'s4',num:'04',ttl:'Permission gate', sub:'RLS · default deny', x:60,y:22, w:15.5, h:56, gate:1},
- {id:'s5',num:'05',ttl:'Postgres',        sub:'43 tables · 4 roles',x:78,y:22, w:15.5, h:56}
+ {id:'s1',num:'01',ttl:'Client',          sub:'Next.js 15 · RTL',   x:6, y:22, w:15.5, h:56, r:0},
+ {id:'s2',num:'02',ttl:'Edge',            sub:'Vercel',             x:24,y:22, w:15.5, h:56, r:0},
+ {id:'s3',num:'03',ttl:'Server actions',  sub:'Zod validated',      x:42,y:22, w:15.5, h:56, r:0},
+ {id:'s4',num:'04',ttl:'Permission gate', sub:'RLS · default deny', x:60,y:22, w:15.5, h:56, r:0, gate:1},
+ {id:'s5',num:'05',ttl:'Postgres',        sub:'43 tables · 4 roles',x:78,y:22, w:15.5, h:56, r:0}
 ];
-let RAIL=50, DUR=9, PW=3.4, detected=null;
+let RAIL=50, DUR=9, PW=3.4, PERSP=900, SPREAD=0, detected=null;
 const fx=document.getElementById('fx'), mv=document.getElementById('mv'),
       out=document.getElementById('out'), img=document.getElementById('img'),
       prof=document.getElementById('prof'), status=document.getElementById('status');
@@ -171,7 +179,10 @@ SL.forEach(s=>{
   const el=document.createElement('div');
   el.className='slab '+s.id+(s.gate?' gate':'');
   el.innerHTML=`<span class="ttl">${s.ttl}</span><span class="sub">${s.sub}</span>
-    <span class="num">${s.num}</span><span class="handle" data-h="1"></span>`;
+    <span class="num">${s.num}</span>
+    <span class="h n" data-e="n"></span><span class="h s" data-e="s"></span>
+    <span class="h w" data-e="w"></span><span class="h e" data-e="e"></span>
+    <span class="h rot" data-e="r"></span>`;
   fx.appendChild(el); s.el=el;
 });
 
@@ -224,9 +235,18 @@ function vertical(x0,x1){
   const sr=[...rs].sort((a,b)=>a-b);
   const rb=sr[(sr.length*0.2)|0], rp=sr[(sr.length*0.95)|0];
   const rt=rb+(rp-rb)*0.34;
-  let ta=0,tb=CH-1;
+  let ta=0;
   for(let y=0;y<CH;y++) if(rs[y]>=rt){ta=y;break;}
-  for(let y=CH-1;y>=0;y--) if(rs[y]>=rt){tb=y;break;}
+  /* a glass slab sits above its own floor reflection, which is also bright, so the last
+     pixel over threshold lands well below the base. Take the strongest bright->dark drop
+     in the lower half instead — that edge is the base. */
+  let tb=CH-1, best=-1;
+  const mid=(ta+CH)>>1;
+  for(let y=mid;y<CH-1;y++){
+    const d=rs[y]-rs[y+1];
+    if(d>best){best=d;tb=y;}
+  }
+  if(tb-ta < CH*0.15){ for(let y=CH-1;y>=0;y--) if(rs[y]>=rt){tb=y;break;} }
   return [ta,tb];
 }
 /* snap a slab around a seed x, by finding the strongest edge each way */
@@ -347,15 +367,20 @@ mv.addEventListener('pointerdown',e=>{
   const slab=e.target.closest('.slab'); if(!slab) return;
   const s=SL.find(v=>v.el===slab); if(!s) return;
   const r=mv.getBoundingClientRect();
-  drag={s,mode:e.target.dataset.h?'size':'move',px:e.clientX,py:e.clientY,
-        x:s.x,y:s.y,w:s.w,h:s.h,rw:r.width,rh:r.height};
+  drag={s,mode:e.target.dataset.e||'move',px:e.clientX,py:e.clientY,
+        x:s.x,y:s.y,w:s.w,h:s.h,rot:s.r,rw:r.width,rh:r.height};
   mv.setPointerCapture(e.pointerId); e.preventDefault();
 });
 mv.addEventListener('pointermove',e=>{
   if(!drag) return;
   const dx=(e.clientX-drag.px)/drag.rw*100, dy=(e.clientY-drag.py)/drag.rh*100;
-  if(drag.mode==='move'){drag.s.x=+(drag.x+dx).toFixed(2);drag.s.y=+(drag.y+dy).toFixed(2);}
-  else {drag.s.w=Math.max(3,+(drag.w+dx).toFixed(2));drag.s.h=Math.max(6,+(drag.h+dy).toFixed(2));}
+  const S=drag.s, m=drag.mode;
+  if(m==='move'){S.x=+(drag.x+dx).toFixed(2);S.y=+(drag.y+dy).toFixed(2);}
+  else if(m==='n'){const nh=Math.max(6,drag.h-dy);S.y=+(drag.y+(drag.h-nh)).toFixed(2);S.h=+nh.toFixed(2);}
+  else if(m==='s'){S.h=Math.max(6,+(drag.h+dy).toFixed(2));}
+  else if(m==='w'){const nw=Math.max(3,drag.w-dx);S.x=+(drag.x+(drag.w-nw)).toFixed(2);S.w=+nw.toFixed(2);}
+  else if(m==='e'){S.w=Math.max(3,+(drag.w+dx).toFixed(2));}
+  else if(m==='r'){S.r=+Math.max(-42,Math.min(42,drag.rot+dx*1.6)).toFixed(1);}
   apply();
 });
 addEventListener('pointerup',()=>drag=null);
@@ -365,9 +390,19 @@ const dyn=document.createElement('style'); document.head.appendChild(dyn);
 function apply(){
   fx.style.setProperty('--dur',DUR+'s');
   fx.style.setProperty('--pw',PW+'%');
-  SL.forEach(s=>{s.el.style.left=s.x+'%';s.el.style.top=s.y+'%';
-                 s.el.style.width=s.w+'%';s.el.style.height=s.h+'%';});
-  const c1=SL[0].x+SL[0].w/2, c5=SL[4].x+SL[4].w/2, span=c5-c1;
+  const rc=(SL[0].x+SL[0].w/2 + SL[4].x+SL[4].w/2)/2;
+  const half=Math.max(1,(SL[4].x+SL[4].w/2)-rc);
+  SL.forEach(s=>{
+    s.el.style.left=s.x+'%';s.el.style.top=s.y+'%';
+    s.el.style.width=s.w+'%';s.el.style.height=s.h+'%';
+    const auto=SPREAD*((s.x+s.w/2)-rc)/half;
+    s.rotEff=+(s.r+auto).toFixed(1);
+    s.el.style.transform = s.rotEff ? `perspective(${PERSP}px) rotateY(${s.rotEff}deg)` : '';
+  });
+  /* start before the first frame and finish after the last, otherwise the flare stops
+     for s1 and s5 land exactly on 0% and 100% where CSS drops them */
+  const PAD=3.5;
+  const c1=SL[0].x-PAD, span=(SL[4].x+SL[4].w+PAD)-c1;
   fx.style.setProperty('--run',span.toFixed(2)+'%');
   const rail=fx.querySelector('.rail');
   rail.style.left=c1+'%'; rail.style.width=span+'%'; rail.style.top=RAIL+'%';
@@ -376,16 +411,19 @@ function apply(){
 
   /* fraction of the run at which the packet is centred on each frame */
   const fr=SL.map(s=>span?Math.min(1,Math.max(0,((s.x+s.w/2)-c1)/span)):0);
-  const delays=fr.map(f=>-(DUR*(1-f)).toFixed(2));
+  /* slabFlare's peak sits at 92%, so the delay that lands it on the crossing is (f-0.92)*DUR */
+  const delays=fr.map(f=>{let d=(f-0.92)*DUR; if(d>0) d-=DUR; return d.toFixed(2);});
   SL.forEach((s,i)=>s.el.style.animationDelay = s.gate?`${delays[i]}s, 0s`:`${delays[i]}s`);
 
   /* the box flares at each crossing — one keyframes rule with five peaks */
   const stops=[];
   fr.forEach(f=>{
-    const p=f*100;
-    stops.push([Math.max(0,p-2.2),'dim'],[p,'hot'],[Math.min(100,p+2.2),'dim']);
+    const p=Math.min(97.5,Math.max(2.5,f*100));
+    stops.push([p-2.2,'dim'],[p,'hot'],[p+2.2,'dim']);
   });
   stops.sort((a,b)=>a[0]-b[0]);
+  for(let i=1;i<stops.length;i++)
+    if(stops[i][0]-stops[i-1][0] < 0.15) stops[i][0]=stops[i-1][0]+0.15;
   const DIM='filter:brightness(1) drop-shadow(0 0 6px rgba(78,209,139,.55))';
   const HOT='filter:brightness(1.75) drop-shadow(0 0 20px rgba(120,255,190,.95)) drop-shadow(0 0 48px rgba(78,209,139,.5))';
   const body=stops.map(([p,k])=>`${p.toFixed(1)}%{${k==='hot'?HOT:DIM}}`).join('\n  ');
@@ -401,13 +439,19 @@ function apply(){
 function write(delays,c1,span,body,DIM,HOT){
 const rows=SL.map((s,i)=>
 `.band .${s.id}{left:${s.x}%;top:${s.y}%;width:${s.w}%;height:${s.h}%;`+
+(s.rotEff?`transform:perspective(${PERSP}px) rotateY(${s.rotEff}deg);`:'')+
 (s.gate?`\n  animation:slabFlare var(--dur) linear infinite,gatePulse 2.4s ease-in-out infinite;
   animation-delay:${delays[i]}s,0s}`:`animation-delay:${delays[i]}s}`)).join('\n');
 const css=document.querySelector('style').textContent
   .split('/* ===================== OVERLAY ===================== */')[1]
-  .split('.handle{')[0]
-  .replace(/\.fx /g,'.band ').replace(/\.fx\.locked[^}]*}/g,'')
-  .replace(/\.fx\.no-text/g,'.band.no-text').replace(/cursor:move;/,'').trim();
+  .split('.h{position:absolute')[0]
+  .replace(/\.fx\{[^}]*\}/g,'')          /* the tool's own .fx rule — .fx.band replaces it */
+  .replace(/\.fx\.locked[^}]*\}/g,'')
+  .replace(/body\.rm[^}]*\}/g,'')         /* tool-only reduced-motion class */
+  .replace(/\.fx\.no-text/g,'.band.no-text')
+  .replace(/\.fx /g,'.band ')
+  .replace(/cursor:move;/,'')
+  .replace(/\n{3,}/g,'\n\n').trim();
 out.textContent=
 `<!-- ===== index.html — replace the system-band figure ===== -->
 <figure class="keyvis" style="margin:0">
@@ -471,6 +515,8 @@ document.getElementById('rail').oninput=e=>{RAIL=+e.target.value;
   document.getElementById('railv').textContent=RAIL+'%';apply();};
 document.getElementById('pw').oninput=e=>{PW=+e.target.value;
   document.getElementById('pwv').textContent=PW+'%';apply();};
+document.getElementById('spread').oninput=e=>{SPREAD=+e.target.value;
+  document.getElementById('spreadv').textContent=SPREAD+'°';apply();};
 apply();
 if(img.complete && img.naturalWidth) img.onload();
 </script>
