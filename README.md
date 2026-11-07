@@ -1,17 +1,9 @@
-<!--
-  ┌────────────────────────────────────────────────────────────────┐
-  │  This file goes in a repo named EXACTLY  Jovo-Jovi/Jovo-Jovi    │
-  │  (a repo with the same name as your username powers your        │
-  │   profile page). Edit the CUSTOMIZE spots, commit, done.        │
-  └────────────────────────────────────────────────────────────────┘
--->
-
 <div align="center">
 
 <img src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/header.svg" width="100%" alt="header"/>
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3500&pause=1000&color=F59E0B&center=true&vCenter=true&width=720&lines=Full-Stack+Engineer+%7C+AI+%26+Agentic+Systems;Next.js+15+%C2%B7+Supabase+%C2%B7+TypeScript;Shipping+polished+MVPs%2C+fast" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3500&pause=1000&color=F59E0B&center=true&vCenter=true&width=720&lines=Mechatronics+Engineer+%C2%B7+Founder+%C2%B7+Product+Engineer;Creator+of+DEV_OS+Engine;Next.js+%C2%B7+Supabase+%C2%B7+TypeScript" alt="Typing SVG" />
 </a>
 
 <br/>
@@ -27,11 +19,12 @@
 
 ### <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="26"> About Me
 
-- 🧠 I build **AI-powered tools and autonomous / agentic systems** — from orchestration pipelines to full-stack products.
-- ⚡ Bias toward **shipping**: functional, polished MVPs, not slideware.
-- 🎨 I care about design as much as architecture — dark, refined, intentional interfaces.
-- 🚀 Currently building **BETK**, a marketplace platform.
-- 📫 Reach me: <!-- CUSTOMIZE --> **[email/LinkedIn below]**
+- 🏭 Mechatronics engineer · founder and general manager of **El Giovani**, a B2B trading company, since 2009.
+- 🤖 Creator of **[DEV_OS Engine](https://github.com/Jovo-Jovi/devos-engine)** — AI agents build and review a project task by task, and you approve every gate.
+- 🧪 Delivered a bilingual website and staff dashboard for a Cairo medical laboratory.
+- 🚀 Building **BETK**, an Arabic-first marketplace, and **B2S**, a white-label business platform.
+- 🤝 Open to roles and projects.
+- 📫 [jiovanny@kynora.dev](mailto:jiovanny@kynora.dev) · [kynora.dev](https://kynora.dev)
 
 ---
 
@@ -39,7 +32,7 @@
 
 <div align="center">
 
-<a href="https://jovo-jovi.vercel.app">
+<a href="https://kynora.dev">
   <img src="https://raw.githubusercontent.com/Jovo-Jovi/Jovo-Jovi/main/assets/portfolio-card.png" width="100%" alt="Portfolio snapshot: gearbox, walking humanoid, quadcopter drone, neural learning graph, and backend request stack"/>
 </a>
 
@@ -47,7 +40,7 @@
 
 <br/>
 
-[**→ jovo-jovi.vercel.app**](https://jovo-jovi.vercel.app)
+[**→ kynora.dev**](https://kynora.dev)
 
 </div>
 
@@ -57,30 +50,33 @@
 
 <div align="center">
 
-<img src="https://skillicons.dev/icons?i=nextjs,typescript,react,tailwind,supabase,postgres,python,pytorch,tensorflow,vercel,git,figma&theme=dark" alt="skills"/>
+<img src="https://skillicons.dev/icons?i=nextjs,typescript,react,tailwind,supabase,postgres,python,pytorch,vercel,githubactions,cloudflare,git,figma&theme=dark" alt="skills"/>
 
 </div>
 
 ---
 
-### ⭐ Featured Project
+### ⭐ Featured Work
 
-<div align="center">
+#### 🤖 [DEV_OS Engine](https://github.com/Jovo-Jovi/devos-engine)
+From an empty folder to a project that AI agents build and review task by task — you approve every gate. Zero-dependency Node CLI and guided setup page · Claude Code, Cursor, Codex or Gemini as reviewer or builder · 20 stacks · 17 guards · 11 GitHub Actions workflows.
 
-<table>
-<tr>
-<td width="100%">
+![release](https://img.shields.io/github/v/release/Jovo-Jovi/devos-engine?style=flat-square&label=release&color=F59E0B&labelColor=09090B) &nbsp;·&nbsp; ![status](https://img.shields.io/badge/status-public-22C55E?style=flat-square&labelColor=09090B)
 
-#### 🛒 BETK — Marketplace Platform
-Production-grade marketplace built on a modular monolith: **Next.js 15 · Supabase · shadcn/ui · TypeScript · Zod**. Auth, database, storage, and payments end to end.
+#### 🧪 Medical laboratory website — delivered
+Bilingual website and staff dashboard for a Cairo laboratory, replacing its 2018 site: 47 pages, 12 content modules, a partner-lab area, TOTP sign-in, row-level security on every table, no personal data collected. **Next.js · Supabase · TypeScript**
 
-![status](https://img.shields.io/badge/status-in%20progress-F59E0B?style=flat-square&labelColor=09090B) &nbsp;·&nbsp; ![repo](https://img.shields.io/badge/repo-private%20·%20coming%20soon-71717A?style=flat-square&labelColor=09090B)
+![status](https://img.shields.io/badge/status-delivered-22C55E?style=flat-square&labelColor=09090B) &nbsp;·&nbsp; ![repo](https://img.shields.io/badge/repo-client%20·%20private-71717A?style=flat-square&labelColor=09090B)
 
-</td>
-</tr>
-</table>
+#### 🛒 BETK — Arabic-first marketplace
+A verified storefront for Egypt's informal WhatsApp and Instagram sellers. **Next.js 15 · Supabase · shadcn/ui · TypeScript · Zod**
 
-</div>
+![status](https://img.shields.io/badge/status-in%20development-F59E0B?style=flat-square&labelColor=09090B) &nbsp;·&nbsp; ![repo](https://img.shields.io/badge/repo-private-71717A?style=flat-square&labelColor=09090B)
+
+#### 🏷️ B2S — Brand to Shelf
+Multi-tenant white-label platform consolidating six single-brand tools into one tenanted app. **Vite · React · TypeScript** · [live preview](https://b2s-brand-to-shelf.vercel.app)
+
+![status](https://img.shields.io/badge/status-in%20development-F59E0B?style=flat-square&labelColor=09090B)
 
 ---
 
@@ -170,15 +166,14 @@ Production-grade marketplace built on a modular monolith: **Next.js 15 · Supaba
 
 <div align="center">
 
-<!-- CUSTOMIZE these three links -->
 <a href="https://www.linkedin.com/in/jiovanny-adel-b77b98331">
   <img src="https://img.shields.io/badge/LinkedIn-Jiovanny-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=09090B" alt="linkedin"/>
 </a>
-<a href="mailto:jiovanny.adel@gmail.com">
-  <img src="https://img.shields.io/badge/Email-Contact-F59E0B?style=for-the-badge&logo=gmail&logoColor=white&labelColor=09090B" alt="email"/>
+<a href="mailto:jiovanny@kynora.dev">
+  <img src="https://img.shields.io/badge/Email-jiovanny%40kynora.dev-F59E0B?style=for-the-badge&labelColor=09090B" alt="email"/>
 </a>
-<a href="https://jovo-jovi.vercel.app">
-  <img src="https://img.shields.io/badge/Portfolio-Visit-FBBF24?style=for-the-badge&logo=vercel&logoColor=black&labelColor=09090B" alt="portfolio"/>
+<a href="https://kynora.dev">
+  <img src="https://img.shields.io/badge/Portfolio-kynora.dev-FBBF24?style=for-the-badge&logo=vercel&logoColor=black&labelColor=09090B" alt="portfolio"/>
 </a>
 
 <br/><br/>
